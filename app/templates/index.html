@@ -1,5 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
+    <!-- Page Header -->
+    <header class="masthead" style="background-image: url('static/img/home-bg.jpg')">
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="site-heading">
+              {% if theme %}
+              <h1>{{ theme }}</h1>
+              {% else %}
+              <h1>Micro Blog</h1>
+              {% endif %}
+              {% if subheading %}
+              <span class="subheading">{{ subheading }}</span>
+              {% else %}
+              <span class="subheading">分享一点点技术和感悟</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    
     <!-- Main Content -->
     <div class="container">
       <div class="row">

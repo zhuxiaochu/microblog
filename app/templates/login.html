@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block stylesheet %}
+<link rel="stylesheet" type="text/css" href="static/css/login.css">
+<style>
+    .nav-link,
+    .navbar-brand {
+        color: black !important;
+    }
+</style>
+{% endblock %}
+{% block content %}
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-md-10 mx-auto">
+            <form class="form-horizontal">
+                <span class="heading">用户登录</span>
+                <div class="form-group">
+                    <input type="email" class="form-control" id="inputEmail3" placeholder="用户名或电子邮件">
+                    <i class="fa fa-user"></i>
+                </div>
+                <div class="form-group help">
+                    <input type="password" class="form-control" id="inputPassword3" placeholder="密　码">
+                    <i class="fa fa-lock"></i>
+                    <a href="#" class="fa fa-question-circle"></a>
+                </div>
+                <div class="form-group">
+                    <div class="main-checkbox">
+                        <input type="checkbox" value="None" id="checkbox1" name="check"/>
+                        <label for="checkbox1"></label>
+                    </div>
+                    <span class="text">Remember me</span>
+                    <button type="submit" class="btn btn-default">登录</button>
+                </div>
+            </form>
+          </div>
+        </div>
+      </div>
+{% endblock %}
