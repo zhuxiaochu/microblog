@@ -1,18 +1,32 @@
 from flask_wtf import FlaskForm as Form
-from wtforms.fields import StringField,TextField,TextAreaField,SubmitField,BooleanField
-from wtforms.validators import DataRequired, Length
+from app.models import User
+from wtforms.fields import (StringField,TextField,TextAreaField,SubmitField,BooleanField,
+                            PasswordField)
+from wtforms.validators import DataRequired, Length, ValidationError, Email, EqualTo
 
 class LoginForm(Form):
-	username = StringField(validators=[DataRequired(message='请输入用户名'), Length(max=15)],label='Username')
+	username = StringField(validators=[DataRequired(), Length(max=25)],label='Username')
 	password = StringField(validators=[DataRequired(), Length(max=15)])
-	remember_me = BooleanField('remember me', default=False)
+	remember_me = BooleanField('check', default=False)
 	submit = SubmitField('登录')
 
 class SignUpForm(Form):
-	username = StringField('请输入用户名',validators=[DataRequired(message='请输入用户名'), Length(max=15)])
-	password = StringField(validators=[DataRequired(), Length(min=6,max=15)])
+	username = StringField('username',validators=[DataRequired(message='请输入用户名'), Length(max=25)])
+	email = StringField('Email', validators=[DataRequired(), Email()])
+	password = PasswordField('password', validators=[DataRequired(), Length(min=6,max=15)])
+	password2 = PasswordField(validators=[DataRequired(), EqualTo('password')])
 	submit = SubmitField('注册')
 
+	def validate_username(self,username):
+		user = User.query.filter_by(username=username.data).first()
+		if user is not None:
+			raise ValidationError('用户名已存在')
+	def validate_username(self,email):
+		user = User.query.filter_by(email=email.data).first()
+		if user is not None:
+			raise ValidationError('此邮箱已注册')
+
+			
 class EditForm(Form):
 	username = TextField('username', validators = [DataRequired()])
 	about_me = TextAreaField('about_me', validators = [Length(min = 0, max =140)])

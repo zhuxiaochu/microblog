@@ -45,6 +45,18 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
+            {% if current_user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link">Hi,{{ current_user.username }}</a>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('logout') }}">退出</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">登录</a>
+            </li>
+            {% endif %}
+            </li>
             <li class="nav-item">
               <a class="nav-link" href="index">首页</a>
             </li>
@@ -52,10 +64,10 @@
               <a class="nav-link" href="about.html">照片</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="login">管理</a>
+              <a class="nav-link" href="archives">管理</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="contact.html">联系</a>
+              <a class="nav-link" href="{{ url_for('contact') }}">联系</a>
             </li>
           </ul>
         </div>
