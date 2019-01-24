@@ -36,7 +36,9 @@ class User(UserMixin,db.Model):
 	def login_check(cls,username):
 		user = cls.query.filter(User.username == username).first()
 		if not user:
-			return None
+			user = cls.query.filter(User.email == username).first()
+			if not user:
+				return None
 		return user
 
 class Post(db.Model):

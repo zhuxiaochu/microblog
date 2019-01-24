@@ -36,13 +36,13 @@ def login():
                 flash("服务存在异常！请稍后再试。")                      #"The Database error!"  没必要告诉用户太明确的错误原因
                 return redirect('/login')
             if not next_page or url_parse(next_page).netloc != '':
-                flash('remember me? ' + str(request.form.get('remember_me')))
+                #flash('remember me? ' + str(request.form.get('remember_me')))
                 next_page = url_for('index')
             return redirect(next_page)
         else:
             flash('用户名或密码错误！')          #Login failed, username or password error!
             return redirect('/login')
-    return render_template('login.html',form=form)
+    return render_template('login.html', form=form, title='登录')
 
 
 @app.route('/logout')
@@ -60,3 +60,23 @@ def contact():
 @login_required
 def archives():
 	return 'making'
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = SignUpForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except:
+            flash("服务存在异常！请稍后再试。")                      #"The Database error!"  没必要告诉用户太明确的错误原因
+            return redirect('/signup')
+        flash('注册成功')
+        return redirect(url_for('login'))
+    #if form.username.data is not None:
+        #flash('错误')
+    return render_template('signup.html', form=form, title='注册')

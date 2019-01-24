@@ -36,6 +36,12 @@
         }
         this.previousTop = currentTop;
       });
+  function register(){
+  var regist = document.getElementById('login')
+  regist.innerHTML = '注册'
+  regist.href = 'signup'
+}
   }
 
 })(jQuery); // End of use strict
+
