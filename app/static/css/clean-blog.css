@@ -325,3 +325,8 @@ footer {
 .alert {
   border-radius: 0.85rem;
 }
+
+.user{
+  position: relative;
+  top: 100px;
+}

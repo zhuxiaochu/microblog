@@ -13,15 +13,15 @@
     <title> 一点点技术和感悟 - 1956的博客</title>
     {% endif %}
     <!-- Bootstrap core CSS -->
-    <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom fonts for this template -->
-    <link href="static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
     <!-- Custom styles for this template -->
-    <link href="static/css/clean-blog.min.css" rel="stylesheet"> 
+    <link href="/static/css/clean-blog.css" rel="stylesheet"> 
 
     <!-- HTML5 Shiv 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
     <!-- 注意： 如果通过 file://  引入 Respond.js 文件，则该文件无法起效果 -->
@@ -63,15 +63,18 @@
               {% endif %}
             {% endif %}
             </li>
+            {% if current_user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="index">首页</a>
+              <a class="nav-link" href="{{ url_for('user', username=current_user.username) }}">管理</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('index') }}">首页</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="about.html">照片</a>
+              <a class="nav-link" href="{{ url_for('picture') }}">照片</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="archives">管理</a>
-            </li>
+
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('contact') }}">联系</a>
             </li>
@@ -125,10 +128,10 @@
     </footer>
 
     <!-- Bootstrap core JavaScript -->
-    <script src="static/vendor/jquery/jquery.min.js"></script>
-    <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom scripts for this template -->
-    <script src="static/js/clean-blog.min.js"></script>
+    <script src="/static/js/clean-blog.min.js"></script>
   </body>
 </html>

@@ -20,7 +20,6 @@ class SignUpForm(Form):
 
     def validate_username(self,username):
         user = User.query.filter_by(username=username.data).first()
-        print(user)
         if user is not None:
             raise ValidationError('用户名已存在')
     def validate_email(self,email):

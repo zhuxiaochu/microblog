@@ -15,6 +15,13 @@ def index():
     return render_template('index.html')
 
 
+@app.before_request
+def before_request()
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
+
+
 @app.route('/login',methods=['GET','POST'])
 def login():
     form = LoginForm()
@@ -56,9 +63,9 @@ def contact():
     return render_template('contact.html')
 
 
-@app.route('/archives')
+@app.route('/edit')
 @login_required
-def archives():
+def edit():
 	return 'making'
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -80,3 +87,20 @@ def signup():
     #if form.username.data is not None:
         #flash('错误')
     return render_template('signup.html', form=form, title='注册')
+
+
+@app.route('/user')
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    if username is None:
+        return redirect(url_for('login'))
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = [
+    ]
+    return render_template('user.html', user=user, posts=posts)
+
+
+@app.route('/picture')
+def picture():
+    return 'making'
