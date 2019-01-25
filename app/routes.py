@@ -82,7 +82,7 @@ def edit_profile():
     return render_template('edit_profile.html', title='修改信息', form=form)
 
 
-
+#exists race condition problem
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
