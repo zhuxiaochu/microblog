@@ -118,3 +118,13 @@ def user(username):
 @app.route('/picture')
 def picture():
     return 'making'
+
+
+
+
+
+
+#error pages
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
