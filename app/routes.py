@@ -110,8 +110,7 @@ def user(username):
     if username is None:
         return redirect(url_for('login'))
     user = User.query.filter_by(username=username).first_or_404()
-    posts = [
-    ]
+    posts=Post.query.filter_by(user_id = current_user.id).order_by(db.desc(Post.time)).paginate(1,3, False)
     return render_template('user.html', user=user, posts=posts, timedelta=timedelta(hours=8))  #utc+08:00
 
 
@@ -120,7 +119,37 @@ def picture():
     return 'making'
 
 
+@app.route('/delete/<post_id>',methods = ['POST'])
+@login_required
+def delete(post_id):
+    post = Post.query.filter_by(id = post_id).first()
+    db.session.delete(post)
+    db.session.commit()
+    flash("delete post successful!")
+    return redirect(url_for('user',username=g.user.username))
 
+
+@app.route('/edit/<post_id>',methods = ['GET'])
+@login_required
+def editpost(post_id):
+    form = ChangeForm()
+    post = Post.query.filter_by(id = post_id).first()
+    form.title.data = post.title
+    form.content.data = post.content
+    return render_template('change.html',form = form,post_id=post.id)
+
+
+@app.route('/write',methods=['GET','POST'])
+@login_required
+def write():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data,content = form.content.data,user_id = current_user.id)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post is now live!')
+        return redirect(url_for('user',username=current_user.username))
+    return render_template('write.html',title='写作ing',form=form)
 
 
 

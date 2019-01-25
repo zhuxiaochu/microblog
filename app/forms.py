@@ -51,6 +51,7 @@ class EditForm(Form):
             return False
         return True
 
+
 class ChangeForm(Form):
     title = TextField('title', validators = [DataRequired()])
     content = TextAreaField('content', validators = [Length(min = 0, max=140)])

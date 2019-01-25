@@ -13,24 +13,36 @@
 <header class="">
     <div class="row user">
       <table>
-        <tr valign="top"></tr>
+        <tr valign="top">
             <td><img src="{{ user.avatar(64) }}"></td>
+        </tr>
+            <tr>
+                <td>
+                    {% if user.about_me %}<p>{{user.about_me}}</p>{% endif %}
+                </td>
+                <td>
+                    <span>{% include "flash.html" %}</span>
+                </td>
+            </tr>
+        <tr>
             <td>
-            {% if user.about_me %}<p>{{user.about_me}}</p>{% endif %}
             {% if user.last_seen %}<p><em>Last seen on: {{(user.last_seen+timedelta).strftime('%Y-%m-%d %H:%M:%S') }}</em></p>
             {% endif %}
             {% if user.id == current_user.id %}
             <a href="{{url_for('edit_profile')}}">Edit your profile</a>
             {% endif %}
             </td>
+        </tr>
+        <tr>
             <td>
-            <span>{% include "flash.html" %}</span>
+                <a href="{{ url_for('write') }}">写文章</a>
             </td>
+        </tr>
       </table>
     </div>
 </header>
     <div class="row user">
-        <div class="col-lg-8 col-md-10 mx-auto">
+      <div class="col-lg-8 col-md-10 mx-auto">
             <div class="post-preview">
             <a href="post.html">
               <h2 class="post-title">
@@ -43,11 +55,14 @@
             <p class="post-meta">Posted by
               <a href="#">Start Bootstrap</a>
               on September 24, 2017</p>
-          </div>
-        {% for post in posts.items %}
-        {% include 'manage.html' %}
-        {% endfor %}
+            </div>
+            <div>
+                {% for post in posts.items %}
+                {% include 'manage.html' %}
+                {% endfor %}
+            </div>
         </div>
+      <div class="row user">
         <ul class="pager col-lg-8 col-md-10 mx-auto">
            {% if posts.has_prev %}
              <li class="previous"><a href="{{ url_for('index', page = posts.prev_num) }}">Newer posts</a></li>
@@ -60,6 +75,7 @@
                 <li class="next disabled"><a href="#">Older posts</a></li>
             {% endif %}
         </ul>
-        </div>
+      </div>
     </div>
+</div>
 {% endblock %}
