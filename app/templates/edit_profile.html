@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <div class="row user">
+       <h2>编辑个人信息</h2>
+       <form action="" method="POST">
+           {{ form.hidden_tag() }}
+           <p>
+               {{ form.username.label }}<br>
+               {{ form.username(size=32) }}
+               {% for error in form.username.errors %}
+               <span style="color: red">[{{ error }}]</span>
+               {% endfor %}
+           </p>
+           <p>
+               {{ form.about_me.label }}<br>
+               {{ form.about_me(cols=50, rows=4)}}
+               {% for error in form.about_me.errors %}
+               <span style="color: red">[{{ error }}]</span>
+               {% endfor %}
+           </p>
+           <p>{{ form.submit() }}</p>
+       </form>
+    </div>
+  </div>
+{% endblock %}

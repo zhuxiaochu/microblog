@@ -27,6 +27,13 @@ class SignUpForm(Form):
         if user is not None:
             raise ValidationError('此邮箱已注册')
 
+
+class EditProfileForm(Form):
+    """docstring for EditProfileForm"""
+    username = StringField('用户名', validators=[DataRequired()])        
+    about_me = TextAreaField('个人简介', validators=[Length(min=0,max=140)])
+    submit = SubmitField('保存')
+
 			
 class EditForm(Form):
     username = TextField('username', validators = [DataRequired()])

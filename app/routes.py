@@ -4,7 +4,7 @@ from flask import (render_template,flash,url_for,session,redirect,request,g,abor
 from app import app, db, login
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Post,User
-from app.forms import LoginForm,EditForm,PostForm,SignUpForm,ChangeForm
+from app.forms import LoginForm, EditForm, PostForm, SignUpForm, ChangeForm, EditProfileForm
 from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
 
@@ -16,7 +16,7 @@ def index():
 
 
 @app.before_request
-def before_request()
+def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
@@ -63,10 +63,25 @@ def contact():
     return render_template('contact.html')
 
 
-@app.route('/edit')
+@app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
-def edit():
-	return 'making'
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        try:
+            db.session.commit()
+        except:
+            flash('服务存在异常！请稍后再试。')
+        flash('修改成功。')
+        return redirect(url_for('user', username=current_user.username))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', title='修改信息', form=form)
+
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -89,7 +104,6 @@ def signup():
     return render_template('signup.html', form=form, title='注册')
 
 
-@app.route('/user')
 @app.route('/user/<username>')
 @login_required
 def user(username):
@@ -98,7 +112,7 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     posts = [
     ]
-    return render_template('user.html', user=user, posts=posts)
+    return render_template('user.html', user=user, posts=posts, timedelta=timedelta(hours=8))  #utc+08:00
 
 
 @app.route('/picture')
