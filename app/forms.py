@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm as Form
-from app.models import User
+from app.models import User, RegistCode
 from wtforms.fields import (StringField,TextField,TextAreaField,SubmitField,BooleanField,
                             PasswordField)
 from wtforms.validators import DataRequired, Length, ValidationError, Email, EqualTo
@@ -13,19 +13,24 @@ class LoginForm(Form):
 class SignUpForm(Form):
     username = StringField('username',validators=[DataRequired(message='请输入用户名'), Length(max=25)])
     email = StringField('Email', validators=[DataRequired(), Email(message='不合理的邮箱格式')])
-    password = PasswordField('password', validators=[DataRequired(), Length(min=6,max=15)])
+    code = StringField('Code', validators=[DataRequired(), Length(min=6, max=6)])
+    password = PasswordField('password', validators=[DataRequired(), Length(min=6, max=15)])
     password2 = PasswordField('password2', validators=[DataRequired(), EqualTo('password',
                              message='前后输入的密码不一样')])
     submit = SubmitField('注册')
 
-    def validate_username(self,username):
+    def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError('用户名已存在')
-    def validate_email(self,email):
+    def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('此邮箱已注册')
+    def validate_code(self, code):
+        registcode = RegistCode.query(filter_by(email=email.data)).first().verify_code
+        if registcode == code:
+            raise ValidationError('验证码不正确')
 
 
 class EditProfileForm(Form):

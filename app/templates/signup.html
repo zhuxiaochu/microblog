@@ -8,6 +8,11 @@
     }
 </style>
 {% endblock %}
+{% block signup %}
+<li class="nav-item">
+               <a class="nav-link" style="color: green !important;font-style: italic;" href="{{ url_for('login') }}">立即登录</a>
+            </li>
+{% endblock %}
 {% block content %}
       <div class="container">
         <div class="row">
@@ -42,6 +47,14 @@
                 <div class="form-group">
                     {{ form.email(type='email', class="form-control", id="inputEmial3", placeholder="邮箱")}}
                     {% for error in form.email.errors %}
+                    <span style="color: red">[{{ error }}]</span>
+                    {% endfor %}
+                    <input type="button" id="verify" value="发送验证码">
+                </div>
+                <a href="{{ url_for('verify') }}" id='verifyUrl'></a>
+                <div class="form-group">
+                    {{ form.email(type='text', class="form-control", id="inputEmial4", placeholder="验证码")}}
+                    {% for error in form.code.errors %}
                     <span style="color: red">[{{ error }}]</span>
                     {% endfor %}
                     <i class="fa fa-user"></i>

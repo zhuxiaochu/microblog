@@ -5,9 +5,9 @@
 	</td>
 	<td>
 		<form action="{{ url_for('delete',post_id = post.id) }}" method="POST" >
-		<input class="btn" type="submit" value="delete" >
+		<input class="btn button" type="submit" value="删除" >
 		</form>
-		<a class="btn" href="{{ url_for('editpost',post_id = post.id) }}" type="submit" value="edit">edit</a>
+		<a class="btn button" href="{{ url_for('editpost',post_id = post.id) }}" type="submit" value="编辑">编辑</a>
 	</td>
 </tr>
 </table>

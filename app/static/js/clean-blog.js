@@ -36,12 +36,13 @@
         }
         this.previousTop = currentTop;
       });
-  function register(){
-  var regist = document.getElementById('login')
-  regist.innerHTML = '注册'
-  regist.href = 'signup'
-}
+
   }
 
 })(jQuery); // End of use strict
-
+$(document).ready(function(){
+  $("#verify").click(function(){
+    var email_input = $("#inputEmial3").val()
+    $.post("/verify", {email:email_input,test:"test"});
+  });
+});

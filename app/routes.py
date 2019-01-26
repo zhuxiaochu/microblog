@@ -3,7 +3,7 @@ from flask import (render_template,flash,url_for,session,redirect,request,g,abor
 					make_response)
 from app import app, db, login
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import Post,User
+from app.models import Post, User, RegistCode
 from app.forms import LoginForm, EditForm, PostForm, SignUpForm, ChangeForm, EditProfileForm
 from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
@@ -93,6 +93,9 @@ def signup():
         user.set_password(form.password.data)
         try:
             db.session.add(user)
+            code = RegistCode.query.filter_by(email=form.email.data).first()
+            if code is not None:
+                db.session.delete(code)
             db.session.commit()
         except:
             flash("服务存在异常！请稍后再试。")                      #"The Database error!"  没必要告诉用户太明确的错误原因
@@ -126,7 +129,7 @@ def delete(post_id):
     db.session.delete(post)
     db.session.commit()
     flash("delete post successful!")
-    return redirect(url_for('user',username=g.user.username))
+    return redirect(url_for('user',username=current_user.username))
 
 
 @app.route('/edit/<post_id>',methods = ['GET'])
@@ -150,6 +153,28 @@ def write():
         flash('Your post is now live!')
         return redirect(url_for('user',username=current_user.username))
     return render_template('write.html',title='写作ing',form=form)
+
+
+
+@app.route('/verify',methods=['POST'])
+def verify():
+    input_email = request.form['email']
+    registcode = RegistCode.query.filter_by(email=input_email).first()
+    if registcode is not None:
+        registcode.generate_code()
+    else:
+        registcode = RegistCode()
+        registcode.email = input_email
+        registcode.generate_code()
+    try:
+        db.session.add(registcode)
+        db.session.commit()
+    except:
+        print('no')
+        flash("服务存在异常！请稍后再试。")                      #"The Database error!"  没必要告诉用户太明确的错误原因
+    return redirect('/signup')
+
+
 
 
 

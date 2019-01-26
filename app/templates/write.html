@@ -8,7 +8,7 @@
 </style>
 {% endblock %}
 {% block content %}
-<div class="container user">
+<div class="container move-down">
 	<form  class="form-horizontal" action="" method="POST">
 		{{form.hidden_tag()}}
 		<div class="control-group">
@@ -30,6 +30,7 @@
 		</div>
 	</form>
 </div>
+<script type="text/javascript" src="{{ url_for('static',filename='ckeditor/ckeditor.js')}}"></script>
 <script>
 	CKEDITOR.replace('editor1');
 </script>

@@ -1,6 +1,7 @@
 from app import db
 from app import login
 from datetime import datetime
+from random import randint
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from hashlib import md5
@@ -72,7 +73,7 @@ class User(UserMixin,db.Model):
 				return None
 		return user
 
-
+#create articles
 class Post(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.String(100))
@@ -84,4 +85,11 @@ class Post(db.Model):
 		return '<Post %r>' % (self.title)
 
 
+#verification code
+class RegistCode(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	verify_code = db.Column(db.Integer, index=True)
+	email = db.Column(db.String(120), index=True, unique=True)
 
+	def generate_code(self):
+		self.verify_code = randint(100000,999999)
