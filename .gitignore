@@ -4,3 +4,4 @@ app.db
 
 #log directory
 .log
+__pycache__
