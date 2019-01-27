@@ -1,2 +1,6 @@
 #database file
 app.db
+
+
+#log directory
+.log
