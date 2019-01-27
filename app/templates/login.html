@@ -34,10 +34,11 @@
                 <div class="form-group">
                     <div class="main-checkbox">
                         {{ form.remember_me(id="checkbox1", type="checkbox") }}
-                        <!--input type="checkbox" value="None" id="checkbox1" name="check"/-->
                         <label for="checkbox1"></label>
                     </div>
                     <span class="text">Remember me</span>
+                    <!-- bad css!!!!!!!!!!!-->
+                    <a href="{{ url_for('reset_password_request') }}">忘记密码？</a>
                     {{ form.submit(class="btn btn-default") }}
                 </div>
             </form>

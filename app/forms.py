@@ -4,6 +4,7 @@ from wtforms.fields import (StringField,TextField,TextAreaField,SubmitField,Bool
                             PasswordField)
 from wtforms.validators import DataRequired, Length, ValidationError, Email, EqualTo
 
+
 class LoginForm(Form):
     username = StringField(validators=[DataRequired(), Length(max=25)],label='Username')
     password = StringField(validators=[DataRequired(), Length(max=15)])
@@ -39,7 +40,8 @@ class EditProfileForm(Form):
     about_me = TextAreaField('个人简介', validators=[Length(min=0,max=140)])
     submit = SubmitField('保存')
 
-			
+
+#can replace EditProfileForm			
 class EditForm(Form):
     username = TextField('username', validators = [DataRequired()])
     about_me = TextAreaField('about_me', validators = [Length(min = 0, max =140)])
@@ -64,3 +66,17 @@ class ChangeForm(Form):
 class PostForm(Form):
     title = TextField('title', validators = [DataRequired(Length(min =0,max=120))])
     content = TextAreaField('content', validators = [Length(min = 0, max=1200)])
+
+#ask for an email for reset 
+class ResetPasswordRequestForm(Form):
+    """docstring for ResetPasswordForm"""
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('重置密码')
+
+
+class ResetPasswordForm(Form):
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField(
+        'Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('重置密码')
+        

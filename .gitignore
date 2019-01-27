@@ -1,7 +1,8 @@
 #database file
-app.db
+*.db
 
 
 #log directory
-.log
+/logs
 __pycache__
+/app/static/ckeditor

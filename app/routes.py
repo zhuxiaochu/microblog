@@ -4,9 +4,11 @@ from flask import (render_template,flash,url_for,session,redirect,request,g,abor
 from app import app, db, login
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Post, User, RegistCode
-from app.forms import LoginForm, EditForm, PostForm, SignUpForm, ChangeForm, EditProfileForm
+from app.forms import (LoginForm, EditForm, PostForm, SignUpForm, ChangeForm, EditProfileForm,
+                       ResetPasswordRequestForm, ResetPasswordForm)
 from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
+from app.email import send_password_reset_email, send_verify_code_email
 
 
 @app.route('/')
@@ -35,7 +37,6 @@ def login():
             user.last_seen = datetime.now()
 			
             next_page = request.args.get('next')
-            print(next_page)
             try:
                 db.session.add(user)
                 db.session.commit()
@@ -50,6 +51,41 @@ def login():
             flash('用户名或密码错误！')          #Login failed, username or password error!
             return redirect('/login')
     return render_template('login.html', form=form, title='登录')
+
+
+@app.route('/reset_password_request', methods=['GET','POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            try:
+                send_password_reset_email(user)
+                flash('重置链接已发送，请检查你的邮箱。')
+                return redirect(url_for('login'))
+            except:
+                flash('服务存在异常，请稍后再试。')
+                return redirect(url_for('reset_password_request'))
+        flash('不存在此用户','no_user')
+    return render_template('reset_password_request.html', form=form, title='重置密码')
+
+
+@app.route('/reset_password/<token>', methods=['GET','POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('密码修改成功。')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)
 
 
 @app.route('/logout')
@@ -169,9 +205,9 @@ def verify():
     try:
         db.session.add(registcode)
         db.session.commit()
+        send_verify_code_email(input_email,registcode.verify_code)
     except:
-        print('no')
-        flash("服务存在异常！请稍后再试。")                      #"The Database error!"  没必要告诉用户太明确的错误原因
+        flash("服务存在异常！请稍后再试。")   #"The Database error!"
     return redirect('/signup')
 
 

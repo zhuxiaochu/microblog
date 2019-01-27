@@ -9,6 +9,7 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_mail import Mail
 
 
 app = Flask(__name__)
@@ -35,7 +36,7 @@ if not app.debug:
         mail_handler = SMTPHandler(
             mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
             fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-            toaddr=app.config['ADMIN'], subject='Microblog errors',
+            toaddr=app.config['ADMINS'], subject='Microblog errors',
             credentials=auth, secure=secure)
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
@@ -51,5 +52,6 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.info('Miroblog startup~~~~~~~')
 
+mail =Mail(app)
 
 from app import routes,models
