@@ -2,6 +2,7 @@ alembic==1.0.6
 asn1crypto==0.24.0
 attrs==18.2.0
 Automat==0.7.0
+blinker==1.4
 cffi==1.11.5
 Click==7.0
 constantly==15.1.0
@@ -9,6 +10,7 @@ cryptography==2.4.2
 cssselect==1.0.3
 Flask==1.0.2
 Flask-Login==0.4.1
+Flask-Mail==0.9.1
 Flask-Migrate==2.3.1
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
@@ -26,6 +28,7 @@ pyasn1-modules==0.2.3
 pycparser==2.19
 PyDispatcher==2.0.5
 PyHamcrest==1.9.0
+PyJWT==1.7.1
 pyOpenSSL==18.0.0
 python-dateutil==2.7.5
 python-editor==1.0.3
