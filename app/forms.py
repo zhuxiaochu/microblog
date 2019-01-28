@@ -14,7 +14,7 @@ class LoginForm(Form):
 class SignUpForm(Form):
     username = StringField('username',validators=[DataRequired(message='请输入用户名'), Length(max=25)])
     email = StringField('Email', validators=[DataRequired(), Email(message='不合理的邮箱格式')])
-    code = StringField('Code', validators=[DataRequired(), Length(min=6, max=6)])
+    code = StringField('Code', validators=[DataRequired(), Length(min=6, max=6,message='验证码不对')])
     password = PasswordField('password', validators=[DataRequired(), Length(min=6, max=15)])
     password2 = PasswordField('password2', validators=[DataRequired(), EqualTo('password',
                              message='前后输入的密码不一样')])
@@ -28,9 +28,13 @@ class SignUpForm(Form):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('此邮箱已注册')
+#validate_[param] this param decide the function's input param
     def validate_code(self, code):
-        registcode = RegistCode.query(filter_by(email=email.data)).first().verify_code
-        if registcode == code:
+        #print(email.data)
+        registcode = RegistCode.query.filter_by(verify_code=code.data).first()
+        if registcode is None:
+            raise ValidationError('邮箱不对或服务异常')
+        if registcode.email != self.email.data:
             raise ValidationError('验证码不正确')
 
 

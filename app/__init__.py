@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_moment import Moment
 
 
 app = Flask(__name__)
@@ -23,6 +24,7 @@ login.setup_app(app)
 login.login_view = 'login'           #visit 'login_required' when not logged in,redirect to '/login'
 login.login_message = '先登录，好吗？'
 
+moment = Moment(app)
 
 if not app.debug:
     #send a email for errors

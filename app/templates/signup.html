@@ -53,7 +53,7 @@
                 </div>
                 <a href="{{ url_for('verify') }}" id='verifyUrl'></a>
                 <div class="form-group">
-                    {{ form.email(type='text', class="form-control", id="inputEmial4", placeholder="验证码")}}
+                    {{ form.code(type='text', class="form-control", id="inputEmial4", placeholder="验证码")}}
                     {% for error in form.code.errors %}
                     <span style="color: red">[{{ error }}]</span>
                     {% endfor %}

@@ -110,6 +110,7 @@ def edit_profile():
             db.session.commit()
         except:
             flash('服务存在异常！请稍后再试。')
+            return redirect(url_for('edit_profile'))
         flash('修改成功。')
         return redirect(url_for('user', username=current_user.username))
     elif request.method == 'GET':
@@ -129,9 +130,6 @@ def signup():
         user.set_password(form.password.data)
         try:
             db.session.add(user)
-            code = RegistCode.query.filter_by(email=form.email.data).first()
-            if code is not None:
-                db.session.delete(code)
             db.session.commit()
         except:
             flash("服务存在异常！请稍后再试。")                      #"The Database error!"  没必要告诉用户太明确的错误原因

@@ -12,6 +12,7 @@ Flask==1.0.2
 Flask-Login==0.4.1
 Flask-Mail==0.9.1
 Flask-Migrate==2.3.1
+Flask-Moment==0.6.0
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
 hyperlink==18.0.0

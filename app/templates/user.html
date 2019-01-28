@@ -29,14 +29,14 @@
                 <th>上次访问时间：</th>
             <td>
                 {% if user.last_seen %}
-                    <em>{{(user.last_seen+timedelta).strftime('%Y-%m-%d %H:%M:%S') }}</em>
+                    <em>{{ moment(user.last_seen).format('YYYY-MM-DD, HH:mm:ss') }}</em>
                 {% endif %}
             </td>
         </tr>    
         <tr>
             <td>
                 {% if user.id == current_user.id %}
-                <a href="{{url_for('edit_profile')}}">Edit your profile</a>
+                <a href="{{url_for('edit_profile')}}">编辑你的资料</a>
                 {% endif %}
             </td>
         </tr>
@@ -49,7 +49,7 @@
     </div>
 </header>
     <div class="row move-down">
-      <div class="col-lg-8 col-md-10 mx-auto">
+      <div class="col-lg-8 col-md-12 mx-auto">
             <div class="post-preview">
             <a href="post.html">
               <h2 class="post-title">
@@ -69,20 +69,26 @@
                 {% endfor %}
             </div>
       </div>
-      <div class="col-lg-8 col-md-10 mx-auto">
-        <ul class="pager ">
-           {% if posts.has_prev %}
-             <li class="previous"><a href="{{ url_for('index', page = posts.prev_num) }}">Newer posts</a></li>
-            {% else %}
-                <li class="previous disabled"><a href="#">Newer posts</a></li>
-            {% endif %}
-            {% if posts.has_next %}
-                <li class="next"><a href="{{ url_for('index', page = posts.next_num) }}">Older posts</a></li>
-            {% else %}
-                <li class="next disabled"><a href="#">Older posts</a></li>
-            {% endif %}
-        </ul>
-      </div>
     </div>
+      <div class="clearfix visible-xs-block"></div>
+      <div class="row move-down">
+          <div class="col-md-3 col-md-offset-3">
+            <!--ul class="pager "-->
+               {% if posts.has_prev %}
+                 <li class="previous"><a href="{{ url_for('index', page = posts.prev_num) }}">Newer posts</a></li>
+                {% else %}
+                    <li class="previous disabled"><a href="#">Newer posts</a></li>
+                {% endif %}
+          </div>
+          <div class="col-md-3 col-md-offset-3">
+                {% if posts.has_next %}
+                    <li class="next"><a href="{{ url_for('index', page = posts.next_num) }}">Older posts</a></li>
+                {% else %}
+                    <li class="next disabled"><a href="#">Older posts</a></li>
+                {% endif %}
+            </ul>
+          </div>
+      </div>
+    
 </div>
 {% endblock %}
