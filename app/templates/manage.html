@@ -1,14 +1,72 @@
-<table class="table table-hover">
-<tr>
-	<td>
-		<p>{{ post.username }}</p>{{ post.time }}<p>publish:</p><p><strong>{{ post.title }}</strong></p>
-	</td>
-	<td>
-		<form action="{{ url_for('delete',post_id = post.id) }}" method="POST" >
-		<input class="btn button" type="submit" value="删除" >
-		</form>
-		<a class="btn button" href="{{ url_for('editpost',post_id = post.id) }}" type="submit" value="编辑">编辑</a>
-	</td>
-</tr>
-</table>
-
+<hr>
+<!--div class="post-preview">
+            <a href="post.html">
+              <h2 class="post-title">
+                {{ post.title }}
+              </h2>
+              <h3 class="post-subtitle">
+                {{ post.content|truncate(400,True)|striptags}}
+              </h3>
+            </a>
+            <p class="post-meta">
+                Posted by
+              <a href="#">{{ post.author.username }}</a>
+              on {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
+            </p>
+            <p>
+                <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
+                    <input class="btn button" type="submit" value="删除" >
+                </form>
+                <a class="btn button" href="{{ url_for('editpost',post_id = post.id) }}" type="submit" value="编辑">编辑</a>
+            </p>
+</div-->
+<div class="row">
+    <div class="col-xs-3 col-md-3 col-lg-6">
+        <div class="post title">
+            {{ post.title }}
+        </div>
+    </div>
+    <div class="col-xs-3 col-md-3 col-lg-6 text-right">
+        {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-3 col-md-1 col-lg-6">
+        <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
+            <input class="btn button" type="submit" value="删除" >
+        </form>
+    </div>
+    <div class="col-xs-3 col-md-1 col-lg-6 text-right">
+        <a href="{{ url_for('editpost',post_id = post.id) }}">
+        <input class="btn button" value="编辑" type="button">
+        </a>
+    </div>
+</div>
+<!--div class="row">
+    <div class="col-xs-12 col-md-6 col-md-offset=3">
+        <article class="post">
+            <div class="post username">
+                {{ post.author.username }}
+            </div>
+            <div>
+                {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
+            </div>
+            <div>
+                <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
+                    <input class="btn button" type="submit" value="删除" >
+                </form>
+            </div>
+        </article>
+        <article>
+            <div class="post title">
+                标题：
+            </div>
+            <div>
+                {{ post.title }}
+            </div>
+            <div>
+                <a class="btn button" href="{{ url_for('editpost',post_id = post.id) }}" type="submit" value="编辑">编辑</a>
+            </div>
+        </article>
+    </div>
+</div -->

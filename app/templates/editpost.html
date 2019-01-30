@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block stylesheet %}
+<link rel="stylesheet" type="text/css" href="/static/css/login.css">
 <style>
     .nav-link,
     .navbar-brand {
@@ -9,7 +10,8 @@
 {% endblock %}
 {% block content %}
 <div class="container move-down">
-	<form  class="form-horizontal" action="" method="POST">
+{% include 'flash.html' %}
+	<form  class="form-horizontal" action="{{ url_for('change',post_id=post_id)}}" method="POST" name="">
 		{{form.hidden_tag()}}
 		<div class="control-group">
 	    <label for="title" class="control-label">Title:</label>
@@ -25,14 +27,14 @@
 		</div>
 		<div class="control-group">
 		<div class="controls">
-		<input class="btn btn-primary" type="submit" value="提交">
+		<input class="btn btn-primary" type="submit" value="保存">
 		</div>
 		</div>
 	</form>
 </div>
-<script type="text/javascript" src="{{ url_for('static',filename='ckeditor/ckeditor.js')}}"></script>
-<script>
-	CKEDITOR.replace('editor1');
-</script>
+	<script type="text/javascript" src="{{ url_for('static',filename='ckeditor/ckeditor.js')}}">
+	</script>
+	<script>
+		CKEDITOR.replace('editor1');
+	</script>
 {% endblock %}
-

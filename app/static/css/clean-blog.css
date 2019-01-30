@@ -367,3 +367,16 @@ input.button:hover {
       position: relative;
       top: 6px;
 }
+
+.micro-signup {
+  position: relative;
+}
+#verify {
+  position: absolute;
+  bottom: 2px;
+  left: 72%;
+}
+
+#inputEmail {
+  width: 80%;
+}

@@ -162,18 +162,34 @@ def delete(post_id):
     post = Post.query.filter_by(id = post_id).first()
     db.session.delete(post)
     db.session.commit()
-    flash("delete post successful!")
+    flash("删除成功!")
     return redirect(url_for('user',username=current_user.username))
 
 
-@app.route('/edit/<post_id>',methods = ['GET'])
+@app.route('/editpost/<post_id>', methods=['GET'])
 @login_required
 def editpost(post_id):
     form = ChangeForm()
-    post = Post.query.filter_by(id = post_id).first()
+    post = Post.query.filter_by(id=post_id).first()
     form.title.data = post.title
     form.content.data = post.content
-    return render_template('change.html',form = form,post_id=post.id)
+    return render_template('editpost.html', form=form, post_id=post.id)
+
+
+@app.route('/change/<post_id>', methods=['POST'])
+@login_required
+def change(post_id):
+    form = ChangeForm()
+    post = Post.query.filter_by(id=post_id).first()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        db.session.add(post)
+        db.session.commit()
+        flash('你的修改已经保存.')
+        return redirect(url_for('user', username=current_user.username))
+    flash('修改异常！')
+    return redirect(url_for('editpost', form=form, post_id=post.id))
 
 
 @app.route('/write',methods=['GET','POST'])
@@ -184,7 +200,7 @@ def write():
         post = Post(title=form.title.data,content = form.content.data,user_id = current_user.id)
         db.session.add(post)
         db.session.commit()
-        flash('Your post is now live!')
+        flash('提交成功!')
         return redirect(url_for('user',username=current_user.username))
     return render_template('write.html',title='写作ing',form=form)
 

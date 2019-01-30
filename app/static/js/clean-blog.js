@@ -40,9 +40,13 @@
   }
 
 })(jQuery); // End of use strict
+
+
 $(document).ready(function(){
   $("#verify").click(function(){
     var email_input = $("#inputEmial3").val()
     $.post("/verify", {email:email_input,test:"test"});
   });
 });
+
+

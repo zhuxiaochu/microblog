@@ -17,12 +17,13 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-8 col-md-10 mx-auto">
-            <form class="form-horizontal" action="" method="POST">
+            <form class="form-horizontal" action="" method="POST" onsubmit="return checkSubmit()">
                 {{ form.hidden_tag() }}
                 <span class="heading">注册新用户</span>
                 {% include "flash.html" %}
                 <div class="form-group">
-                    {{ form.username(class="form-control", id="inputEmial2", placeholder="用户名")}}
+                    {{ form.username(class="form-control", id="username", placeholder="用户名",onblur='checkUsername()')}}
+                    <span id="stgcheck"></span>
                     {% for error in form.username.errors %}
                     <span style="color: red">[{{ error }}]</span>
                     {% endfor %}
@@ -30,7 +31,7 @@
                     <a href="#" class="fa fa-question-circle"></a>
                 </div>
                 <div class="form-group help">
-                    {{ form.password(type="password", class="form-control", id="inputPassword3", placeholder="密 码") }}
+                    {{ form.password(type="password", class="form-control", id="password1", placeholder="密 码") }}
                     {% for error in form.password.errors %}
                     <span style="color: red">[{{ error }}]</span>
                     {% endfor %}
@@ -38,26 +39,30 @@
                     <a href="#" class="fa fa-question-circle"></a>
                 </div>
                 <div class="form-group help">
-                    {{ form.password2(type="password", class="form-control", id="inputPassword4", placeholder="再输入一遍密码") }}
+                    {{ form.password2(type="password", class="form-control", id="password2", placeholder="再输入一遍密码", onblur="checkPassword()") }}
+                    <span id="spanpsw" class="myicon-tick-checked"></span>
                     {% for error in form.password2.errors %}
                     <span style="color: red">[{{ error }}]</span>
                     {% endfor %}
                     <i class="fa fa-lock"></i>
                 </div>
-                <div class="form-group">
-                    {{ form.email(type='email', class="form-control", id="inputEmial3", placeholder="邮箱")}}
-                    {% for error in form.email.errors %}
-                    <span style="color: red">[{{ error }}]</span>
-                    {% endfor %}
-                    <input type="button" id="verify" value="发送验证码">
+                <div class="micro-sign">
+                    <div class="form-group">
+                        {{ form.email(type='email', class="form-control", id="inputEmail", placeholder="邮箱")}}
+                        {% for error in form.email.errors %}
+                        <span style="color: red">[{{ error }}]</span>
+                        {% endfor %}
+                        <input type="button" id="verify" value="发送验证码">
+                        <i class="fa fa-mail-forward"></i>
+                    </div>
                 </div>
                 <a href="{{ url_for('verify') }}" id='verifyUrl'></a>
                 <div class="form-group">
-                    {{ form.code(type='text', class="form-control", id="inputEmial4", placeholder="验证码")}}
+                    {{ form.code(type='text', class="form-control", id="inputverify", placeholder="验证码")}}
                     {% for error in form.code.errors %}
                     <span style="color: red">[{{ error }}]</span>
                     {% endfor %}
-                    <i class="fa fa-user"></i>
+                    <i class="fa fa-qrcode"></i>
                 </div>
                 <div class="form-group col-md-10">
                     <span class="text"></span>
