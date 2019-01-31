@@ -67,7 +67,7 @@
             </li>
             {% if current_user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('user', username=current_user.username) }}">管理</a>
+              <a class="nav-link" href="{{ url_for('user', username=current_user.username, page=1) }}">管理</a>
             </li>
             {% endif %}
             <li class="nav-item">

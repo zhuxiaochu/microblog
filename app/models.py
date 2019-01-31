@@ -113,7 +113,7 @@ class RegistCode(db.Model):
 		code = randint(100000,999999)
 		registcode = RegistCode.query.filter_by(verify_code=code).first()
 		while registcode is not None:
-			code = randint(100000,999999)
+			code = randint(1000000,9999999)
 			registcode = RegistCode.query.filter_by(verify_code=code).first()
 		self.verify_code = code
 

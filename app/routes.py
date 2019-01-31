@@ -4,8 +4,8 @@ from flask import (render_template,flash,url_for,session,redirect,request,g,abor
 from app import app, db, login
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Post, User, RegistCode
-from app.forms import (LoginForm, EditForm, PostForm, SignUpForm, ChangeForm, EditProfileForm,
-                       ResetPasswordRequestForm, ResetPasswordForm)
+from app.forms import (LoginForm, EditForm, PostForm, SignUpForm, ChangeForm,
+    EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm)
 from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
@@ -14,6 +14,10 @@ from app.email import send_password_reset_email, send_verify_code_email
 @app.route('/')
 @app.route('/index')
 def index():
+    user = User.query.filter_by(role=1,
+        username=app.config['DATABASE_ADMIN']).first()
+    if user is not None:
+        posts = user.posts.order_by(db.desc(Post.time)).paginate(1,3, False)
     return render_template('index.html')
 
 
@@ -69,7 +73,8 @@ def reset_password_request():
                 flash('服务存在异常，请稍后再试。')
                 return redirect(url_for('reset_password_request'))
         flash('不存在此用户','no_user')
-    return render_template('reset_password_request.html', form=form, title='重置密码')
+    return render_template('reset_password_request.html', form=form,
+         title='重置密码')
 
 
 @app.route('/reset_password/<token>', methods=['GET','POST'])
@@ -141,14 +146,18 @@ def signup():
     return render_template('signup.html', form=form, title='注册')
 
 
-@app.route('/user/<username>')
+@app.route('/user/<username>/<int:page>')
 @login_required
-def user(username):
+def user(username, page=1):
     if username is None:
         return redirect(url_for('login'))
     user = User.query.filter_by(username=username).first_or_404()
-    posts=Post.query.filter_by(user_id = current_user.id).order_by(db.desc(Post.time)).paginate(1,3, False)
-    return render_template('user.html', user=user, posts=posts, timedelta=timedelta(hours=8))  #utc+08:00
+    posts=Post.query.filter_by(user_id = current_user.id).order_by(
+        db.desc(Post.time)).paginate(page, 8, False)
+    if posts.pages < page:
+        abort(404
+            )
+    return render_template('user.html', user=user, posts=posts, page=page)
 
 
 @app.route('/picture')
@@ -197,7 +206,8 @@ def change(post_id):
 def write():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data,content = form.content.data,user_id = current_user.id)
+        post = Post(title=form.title.data,content = form.content.data,
+            user_id = current_user.id)
         db.session.add(post)
         db.session.commit()
         flash('提交成功!')
@@ -219,7 +229,9 @@ def verify():
     try:
         db.session.add(registcode)
         db.session.commit()
-        send_verify_code_email(input_email,registcode.verify_code)
+        if not app.config['NO_EMAIL']:
+            send_verify_code_email(input_email,registcode.verify_code)
+            flash('已发送')
     except:
         flash("服务存在异常！请稍后再试。")   #"The Database error!"
     return redirect('/signup')
