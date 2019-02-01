@@ -17,7 +17,7 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-8 col-md-10 mx-auto">
-            <form class="form-horizontal" action="" method="POST" onsubmit="return checkSubmit()">
+            <form class="form-horizontal" action="{{ url_for('signup') }}" method="POST" onsubmit="return checkSubmit()">
                 {{ form.hidden_tag() }}
                 <span class="heading">注册新用户</span>
                 {% include "flash.html" %}

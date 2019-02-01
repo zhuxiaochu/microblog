@@ -1,24 +1,18 @@
-from app import app
-from flask import (render_template,flash,url_for,session,redirect,request,g,abort,
-					make_response)
+from flask import (render_template,flash,url_for,session,redirect,request,abort)
 from app import app, db, login
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Post, User, RegistCode
-from app.forms import (LoginForm, EditForm, PostForm, SignUpForm, ChangeForm,
+from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
     EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm)
 from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
 
 
-@app.route('/')
-@app.route('/index')
-def index():
-    user = User.query.filter_by(role=1,
-        username=app.config['DATABASE_ADMIN']).first()
-    if user is not None:
-        posts = user.posts.order_by(db.desc(Post.time)).paginate(1,3, False)
-    return render_template('index.html')
+
+@login.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @app.before_request
@@ -26,6 +20,21 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
+
+app.config['DATABASE_ADMIN']='zhuchu'
+@app.route('/')
+@app.route('/index')
+@app.route('/index/<int:page>')
+def index(page=1):
+    user = User.query.filter_by(role=1,
+        username=app.config['DATABASE_ADMIN']).first()
+    if user is not None:
+        posts = user.posts.order_by(db.desc(Post.time)).paginate(page, 5, False)
+        if posts.pages < page:
+            abort(404)
+    else:
+        posts = None
+    return render_template('index.html', user=user, posts=posts)
 
 
 @app.route('/login',methods=['GET','POST'])
@@ -38,7 +47,7 @@ def login():
                 login_user(user,remember=True,duration=timedelta(seconds=600))
             else:
                 login_user(user)
-            user.last_seen = datetime.now()
+            #user.last_seen = datetime.utcnow()
 			
             next_page = request.args.get('next')
             try:
@@ -99,6 +108,7 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
@@ -107,7 +117,7 @@ def contact():
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
-    form = EditProfileForm()
+    form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
@@ -145,24 +155,32 @@ def signup():
         #flash('错误')
     return render_template('signup.html', form=form, title='注册')
 
-
+#manage all the content
+@app.route('/user/<username>')
 @app.route('/user/<username>/<int:page>')
 @login_required
 def user(username, page=1):
     if username is None:
         return redirect(url_for('login'))
     user = User.query.filter_by(username=username).first_or_404()
-    posts=Post.query.filter_by(user_id = current_user.id).order_by(
+    posts=Post.query.filter_by(user_id=current_user.id).order_by(
         db.desc(Post.time)).paginate(page, 8, False)
     if posts.pages < page:
-        abort(404
-            )
+        abort(404)
     return render_template('user.html', user=user, posts=posts, page=page)
 
 
+#can just see the content
+@app.route('/<username>/articles/<post_id>')
+def article_detail(username, post_id):
+    post = Post.query.filter_by(id=post_id).first()
+    return render_template('detail.html', title='全文内容', post=post)
+
+
+#making
 @app.route('/picture')
 def picture():
-    return 'making'
+    abort(404)
 
 
 @app.route('/delete/<post_id>',methods = ['POST'])
@@ -206,32 +224,31 @@ def change(post_id):
 def write():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data,content = form.content.data,
+        post = Post(title=form.title.data, content=form.content.data,
             user_id = current_user.id)
         db.session.add(post)
         db.session.commit()
         flash('提交成功!')
-        return redirect(url_for('user',username=current_user.username))
-    return render_template('write.html',title='写作ing',form=form)
+        return redirect(url_for('user', username=current_user.username))
+    return render_template('write.html', title='写作ing',form=form)
 
 
-
+#send verification code
 @app.route('/verify',methods=['POST'])
 def verify():
-    input_email = request.form['email']
-    registcode = RegistCode.query.filter_by(email=input_email).first()
+    receive_email = request.form['email']
+    registcode = RegistCode.query.filter_by(email=receive_email).first()
     if registcode is not None:
         registcode.generate_code()
     else:
         registcode = RegistCode()
-        registcode.email = input_email
+        registcode.email = receive_email
         registcode.generate_code()
     try:
         db.session.add(registcode)
         db.session.commit()
         if not app.config['NO_EMAIL']:
-            send_verify_code_email(input_email,registcode.verify_code)
-            flash('已发送')
+            send_verify_code_email(receive_email, registcode.verify_code)
     except:
         flash("服务存在异常！请稍后再试。")   #"The Database error!"
     return redirect('/signup')

@@ -16,7 +16,7 @@ class Config(object):
     MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL') is not None
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    ADMINS = os.environ.get('RECEIVE_MAIL')
+    ADMINS = os.environ.get('ADMINS')
 
     DATABASE_ADMIN = os.environ.get('DATABASE_ADMIN')         #control content of index.html
     NO_EMAIL = os.environ.get('NO_EMAIL') is not None   #stop sending verification

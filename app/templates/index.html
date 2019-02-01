@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     <!-- Page Header -->
-    <header class="masthead" style="background-image: url('static/img/home-bg.jpg')">
+    <header class="masthead" style="background-image: url('/static/img/home-bg.jpg')">
       <div class="overlay"></div>
       <div class="container">
         <div class="row">
@@ -22,7 +22,39 @@
         </div>
       </div>
     </header>
-    
+
+    {% if user %}
+      <div class="container">
+        <div class="row">
+          {% if posts %}
+            <div class="col-lg-8 col-md-10 mx-auto">
+            {% for post in posts.items %}
+              <div class="post-preview">
+                <a href="{{ url_for('article_detail', username=user.username, post_id=post.id)}}">
+                  <h2 class="post-title">
+                    {{ post.title }}
+                  </h2>
+                </a>
+                <p class="post-subtitle">
+                  {{ post.content|truncate(200, True)|striptags }}
+                </p>
+                <p class="post-meta">Posted by
+                <a href="#">{{ user.username }}</a>
+                on {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}</p>
+              </div>
+            {% endfor %}
+              <hr>
+              <!-- Pager -->
+              <div class="clearfix">
+                <a class="btn btn-primary float-right" href="#">Older Posts &rarr;</a>
+              </div>
+            </div>
+          {% else %}
+            <em>等待创作ing</em>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
     <!-- Main Content -->
     <div class="container">
       <div class="row">
@@ -87,6 +119,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
 {% endblock %}
     
 

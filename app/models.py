@@ -105,12 +105,13 @@ class Post(db.Model):
 #verification code
 #verify_code is not unique,usually it doesn't matter.
 class RegistCode(db.Model):
+	'''code-email table'''
 	id = db.Column(db.Integer, primary_key=True)
 	verify_code = db.Column(db.Integer, index=True)
 	email = db.Column(db.String(120), index=True, unique=True)
 
 	def generate_code(self):
-		code = randint(100000,999999)
+		code = randint(1000000,9999999)   #can add something use secrets module
 		registcode = RegistCode.query.filter_by(verify_code=code).first()
 		while registcode is not None:
 			code = randint(1000000,9999999)

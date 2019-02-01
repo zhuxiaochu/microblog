@@ -13,6 +13,7 @@ from flask_mail import Mail
 from flask_moment import Moment
 
 
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -54,6 +55,7 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.info('Miroblog startup~~~~~~~')
 
-mail =Mail(app)
+mail = Mail(app)
+
 
 from app import routes,models

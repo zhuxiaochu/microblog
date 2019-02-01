@@ -380,3 +380,11 @@ input.button:hover {
 #inputEmail {
   width: 80%;
 }
+
+.detail-link {
+  color: #337ab7;
+}
+
+.blog-header {
+  margin-top: 80px;
+}

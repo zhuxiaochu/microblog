@@ -44,7 +44,7 @@
 
 $(document).ready(function(){
   $("#verify").click(function(){
-    var email_input = $("#inputEmial3").val()
+    var email_input = $("#inputEmail").val()
     $.post("/verify", {email:email_input,test:"test"});
   });
 });
