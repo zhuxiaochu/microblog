@@ -21,7 +21,7 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
-app.config['DATABASE_ADMIN']='zhuchu'
+
 @app.route('/')
 @app.route('/index')
 @app.route('/index/<int:page>')
