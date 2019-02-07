@@ -1,4 +1,5 @@
 import jwt 
+import secrets
 from app import db
 from app import login
 from app import app
@@ -28,13 +29,14 @@ followers = db.Table('followers',
 #create user orm
 class User(UserMixin,db.Model):
 	id = db.Column(db.Integer, primary_key = True)
-	username = db.Column(db.String(64), index=True, unique = True)
+	username = db.Column(db.String(64), index=True, unique=True)
 	password_hash = db.Column(db.String(128))
 	email = db.Column(db.String(120), index=True, unique=True)
 	role = db.Column(db.SmallInteger, default = ROLE_USER)
-	posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
+	posts = db.relationship('Post', backref = 'author', lazy='dynamic')
 	about_me = db.Column(db.String(140))
 	last_seen = db.Column(db.DateTime)
+	login_record = db.relationship('LoginRecord', backref='owner', lazy='dynamic')
 
 	followed = db.relationship(
 		'User', secondary=followers,
@@ -96,7 +98,7 @@ class Post(db.Model):
 	title = db.Column(db.String(100))
 	content = db.Column(db.String(140))                                    #140 won't limit text'length
 	time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
-	user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 	def __repr__(self):
 		return '<Post %r>' % (self.title)
@@ -107,15 +109,29 @@ class Post(db.Model):
 class RegistCode(db.Model):
 	'''code-email table'''
 	id = db.Column(db.Integer, primary_key=True)
-	verify_code = db.Column(db.Integer, index=True)
+	verify_code = db.Column(db.String(8), index=True)
 	email = db.Column(db.String(120), index=True, unique=True)
 
+	def code_method(self):
+		#return randint(10000000,99999999)
+		return secrets.token_hex(3)
+
 	def generate_code(self):
-		code = randint(1000000,9999999)   #can add something use secrets module
+		code = self.code_method()  #can add something use secrets module
 		registcode = RegistCode.query.filter_by(verify_code=code).first()
 		while registcode is not None:
-			code = randint(1000000,9999999)
+			code = self.code_method()
 			registcode = RegistCode.query.filter_by(verify_code=code).first()
 		self.verify_code = code
 
 
+class LoginRecord(db.Model):
+	'''login record'''
+	id = db.Column(db.Integer, primary_key=True)
+	login_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+	login_ip = db.Column(db.String(32))
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+
+	def __repr__(self):
+		return '<LoginRecord %r>' % (self.owner.username)

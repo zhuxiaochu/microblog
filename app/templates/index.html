@@ -36,7 +36,7 @@
                   </h2>
                 </a>
                 <p class="post-subtitle">
-                  {{ post.content|truncate(200, True)|striptags }}
+                  &nbsp;&nbsp;&nbsp;&nbsp;{{ post.content|truncate(200, True)|striptags }}
                 </p>
                 <p class="post-meta">Posted by
                 <a href="#">{{ user.username }}</a>
@@ -46,7 +46,16 @@
               <hr>
               <!-- Pager -->
               <div class="clearfix">
-                <a class="btn btn-primary float-right" href="#">Older Posts &rarr;</a>
+                {% if posts.has_prev %}
+                 <a class="tn btn-primary float-left" href="{{ url_for('index', page=posts.prev_num) }}">&larr; 上一页</a>
+                {% else %}
+                    <a href=""></a>
+                {% endif %}
+                {% if posts.has_next %}
+                 <a class="tn btn-primary float-right" href="{{ url_for('index', page=posts.next_num) }}">下一页 &rarr;</a>
+                {% else %}
+                    <a class="float-right" href="">没有更多..</a>
+                {% endif %}
               </div>
             </div>
           {% else %}

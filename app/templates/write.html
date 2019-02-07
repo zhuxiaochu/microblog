@@ -10,7 +10,7 @@
 {% block content %}
 <div class="container move-down">
 	<form  class="form-horizontal" action="" method="POST">
-		{{form.hidden_tag()}}
+		{{ form.hidden_tag() }}
 		<div class="control-group">
 	    <label for="title" class="control-label">Title:</label>
 			<div class="controls">
@@ -29,10 +29,8 @@
 		</div>
 		</div>
 	</form>
+	{{ ckeditor.load(custom_url=url_for('static', filename='ckeditor/ckeditor.js')) }}
+	{{ ckeditor.config(name='content') }}
 </div>
-<script type="text/javascript" src="{{ url_for('static',filename='ckeditor/ckeditor.js')}}"></script>
-<script>
-	CKEDITOR.replace('editor1');
-</script>
 {% endblock %}
 

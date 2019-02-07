@@ -5,8 +5,10 @@
 #test file
 test*
 
-#log directory
+#directory
 /logs
 __pycache__
 /app/static/ckeditor
+/pictures/*
+/migrations/*
 

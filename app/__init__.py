@@ -1,6 +1,6 @@
 import os 
-
 import logging
+
 from logging.handlers import SMTPHandler
 from logging.handlers import RotatingFileHandler
 
@@ -11,6 +11,10 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_moment import Moment
+from flask_ckeditor import CKEditor
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 
 
@@ -26,6 +30,10 @@ login.login_view = 'login'           #visit 'login_required' when not logged in,
 login.login_message = '先登录，好吗？'
 
 moment = Moment(app)
+ckeditor = CKEditor(app)
+csrf = CSRFProtect(app)
+
+limiter = Limiter(app, key_func=get_remote_address)
 
 if not app.debug:
     #send a email for errors

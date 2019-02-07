@@ -1,4 +1,6 @@
-from flask import (render_template,flash,url_for,session,redirect,request,abort)
+import os 
+from flask import (render_template, flash, url_for, session, redirect, request,
+    abort, send_from_directory)
 from app import app, db, login
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Post, User, RegistCode
@@ -7,8 +9,11 @@ from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
 from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
+from flask_ckeditor import upload_success, upload_fail
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
-
+limiter = Limiter(app, key_func=get_remote_address)
 
 @login.user_loader
 def load_user(user_id):
@@ -21,7 +26,6 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
-app.config['DATABASE_ADMIN']='zhuchu'
 @app.route('/')
 @app.route('/index')
 @app.route('/index/<int:page>')
@@ -235,6 +239,7 @@ def write():
 
 #send verification code
 @app.route('/verify',methods=['POST'])
+@limiter.limit("100/day;10/hour;1/minute")
 def verify():
     receive_email = request.form['email']
     registcode = RegistCode.query.filter_by(email=receive_email).first()
@@ -254,7 +259,31 @@ def verify():
     return redirect('/signup')
 
 
+@app.route('/files/<filename>')
+@login_required
+def uploaded_files(filename):
+    dirname = app.config['UPLOADED_PATH']
+    if not os.path.exists(dirname):
+        try:
+            os.makedirs(dirname)
+        except:
+            error = 'ERROR_CREATE_DIR'
+    elif not os.access(dirname, os.W_OK):
+        error = 'ERROR_DIR_NOT_WRITEABLE'
+    #raise custom error
+    return send_from_directory(dirname, filename)
 
+
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    f = request.files.get('upload')
+    extension = f.filename.split('.')[1].lower()
+    if extension not in ['jpg', 'gif', 'png', 'jpeg']:
+        return upload_fail(message='Image only!')
+    f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+    url = url_for('uploaded_files', filename=f.filename)
+    return upload_success(url=url)
 
 
 #error pages

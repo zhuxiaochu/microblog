@@ -4,6 +4,7 @@ from app.models import User, RegistCode
 from wtforms.fields import (StringField,TextField,TextAreaField,SubmitField,BooleanField,
                             PasswordField)
 from wtforms.validators import DataRequired, Length, ValidationError, Email, EqualTo
+from flask_ckeditor import CKEditorField
 from app import db
 
 
@@ -91,7 +92,7 @@ class EditProfileForm(Form):
 class ChangeForm(Form):
     '''change an existed article'''
     title = TextField('title', validators = [DataRequired()])
-    content = TextAreaField('content', validators = [Length(min = 0, max=140)])
+    content = CKEditorField('content', validators = [Length(min = 0, max=140)])
 
 class PostForm(Form):
     '''write a new article'''

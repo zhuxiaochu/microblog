@@ -31,10 +31,7 @@
 		</div>
 		</div>
 	</form>
+	{{ ckeditor.load(custom_url=url_for('static', filename='ckeditor/ckeditor.js')) }}
+	{{ ckeditor.config(name='content') }}
 </div>
-	<script type="text/javascript" src="{{ url_for('static',filename='ckeditor/ckeditor.js')}}">
-	</script>
-	<script>
-		CKEDITOR.replace('editor1');
-	</script>
 {% endblock %}
