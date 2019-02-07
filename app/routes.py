@@ -1,7 +1,7 @@
 import os 
 from flask import (render_template, flash, url_for, session, redirect, request,
     abort, send_from_directory)
-from app import app, db, login
+from app import app, db, login, limiter
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Post, User, RegistCode
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
@@ -10,10 +10,7 @@ from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
 from flask_ckeditor import upload_success, upload_fail
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 
-limiter = Limiter(app, key_func=get_remote_address)
 
 @login.user_loader
 def load_user(user_id):
@@ -25,6 +22,7 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
+
 
 @app.route('/')
 @app.route('/index')
