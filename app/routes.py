@@ -1,7 +1,9 @@
-import os 
+import os
+from time import time
+from bs4 import BeautifulSoup
 from flask import (render_template, flash, url_for, session, redirect, request,
     abort, send_from_directory)
-from app import app, db, login, limiter
+from app import app, db, login, limiter, csrf
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Post, User, RegistCode
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
@@ -32,7 +34,7 @@ def index(page=1):
         username=app.config['DATABASE_ADMIN']).first()
     if user is not None:
         posts = user.posts.order_by(db.desc(Post.time)).paginate(page, 5, False)
-        if posts.pages < page:
+        if posts.pages < page and page > 1:
             abort(404)
     else:
         posts = None
@@ -107,6 +109,14 @@ def reset_password(token):
 @app.route('/logout')
 @login_required
 def logout():
+    try:
+        img = Image.query.filter_by(user_id=current_user.id).all()
+        for n in img:
+            db.session.delete(n)
+        db.session.commit()
+    except:
+        logout_user()
+        return redirect(url_for('index'))
     logout_user()
     return redirect(url_for('index'))
 
@@ -164,18 +174,19 @@ def signup():
 def user(username, page=1):
     if username is None:
         return redirect(url_for('login'))
-    user = User.query.filter_by(username=username).first_or_404()
+    if username != current_user.username:
+        abort(404)
     posts=Post.query.filter_by(user_id=current_user.id).order_by(
         db.desc(Post.time)).paginate(page, 8, False)
-    if posts.pages < page:
+    if posts.pages < page and page > 1:
         abort(404)
-    return render_template('user.html', user=user, posts=posts, page=page)
+    return render_template('user.html', user=current_user, posts=posts, page=page)
 
 
 #can just see the content
 @app.route('/<username>/articles/<post_id>')
 def article_detail(username, post_id):
-    post = Post.query.filter_by(id=post_id).first()
+    post = Post.query.filter_by(id=post_id).first_or_404()
     return render_template('detail.html', title='全文内容', post=post)
 
 
@@ -185,10 +196,12 @@ def picture():
     abort(404)
 
 
-@app.route('/delete/<post_id>',methods = ['POST'])
+@app.route('/delete/<post_id>', methods = ['POST'])
 @login_required
 def delete(post_id):
-    post = Post.query.filter_by(id = post_id).first()
+    post = Post.query.filter_by(id = post_id).first_or_404()
+    if post.author.username != current_user.username:
+        abort(404)
     db.session.delete(post)
     db.session.commit()
     flash("删除成功!")
@@ -199,7 +212,9 @@ def delete(post_id):
 @login_required
 def editpost(post_id):
     form = ChangeForm()
-    post = Post.query.filter_by(id=post_id).first()
+    post = Post.query.filter_by(id=post_id).first_or_404()
+    if post.author.username != current_user.username:
+        abort(404)
     form.title.data = post.title
     form.content.data = post.content
     return render_template('editpost.html', form=form, post_id=post.id)
@@ -209,8 +224,22 @@ def editpost(post_id):
 @login_required
 def change(post_id):
     form = ChangeForm()
-    post = Post.query.filter_by(id=post_id).first()
+    post = Post.query.filter_by(id=post_id).first_or_404()
+    if post.author.username != current_user.username:
+        abort(404)
     if form.validate_on_submit():
+        soup_post = BeautifulSoup(post.content, 'lxml')
+        soup_form = BeautifulSoup(form.content.data, 'lxml')
+        img_set1 = {img['src'] for img in soup_post.find_all('img')}
+        img_set2 = {img['src'] for img in soup_form.find_all('img')}
+        delete_img = img_set1 - img_set2
+        if delete_img:
+            for img in delete_img:
+                try:
+                    os.remove(os.path.join(app.config['UPLOADED_PATH'],
+                        os.path.basename(img)))
+                except:
+                    flash('异常')
         post.title = form.title.data
         post.content = form.content.data
         db.session.add(post)
@@ -237,10 +266,10 @@ def write():
 
 #send verification code
 @app.route('/verify',methods=['POST'])
-@limiter.limit("100/day;10/hour;1/minute")
+@limiter.limit("100/day;60/hour;10/minute")
 def verify():
     receive_email = request.form['email']
-    registcode = RegistCode.query.filter_by(email=receive_email).first()
+    registcode = RegistCode.query.filter_by(email=receive_email).first_or_404()
     if registcode is not None:
         registcode.generate_code()
     else:
@@ -260,7 +289,7 @@ def verify():
 @app.route('/files/<filename>')
 @login_required
 def uploaded_files(filename):
-    dirname = app.config['UPLOADED_PATH']
+    dirname = os.path.join(app.config['UPLOADED_PATH'], str(current_user.id))
     if not os.path.exists(dirname):
         try:
             os.makedirs(dirname)
@@ -276,11 +305,19 @@ def uploaded_files(filename):
 @login_required
 def upload():
     f = request.files.get('upload')
-    extension = f.filename.split('.')[1].lower()
-    if extension not in ['jpg', 'gif', 'png', 'jpeg']:
+    basename, *extension = f.filename.split('.')       #prevent danger.jpg.exe,etc
+    if extension[-1].lower() not in ['jpg', 'gif', 'png', 'jpeg']\
+            and len(extension) == 1:
         return upload_fail(message='Image only!')
-    f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-    url = url_for('uploaded_files', filename=f.filename)
+    f_fullname = basename + '_' + str(int(time()*100)) + '.' + extension[0]
+    if not os.path.exists(os.path.join(app.config['UPLOADED_PATH'],
+            str(current_user.id))):
+        os.mkdir(os.path.join(app.config['UPLOADED_PATH'],
+            str(current_user.id)))
+    f_path = os.path.join(app.config['UPLOADED_PATH'], str(current_user.id),
+        f_fullname)
+    f.save(f_path)
+    url = url_for('uploaded_files', filename=f_fullname)
     return upload_success(url=url)
 
 

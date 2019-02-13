@@ -83,7 +83,7 @@ class EditProfileForm(Form):
             return False
         if self.username.data == self.original_username:
             return True
-        user = User.query.filter_by(username = self.username.data).first()
+        user = User.query.filter_by(username=self.username.data).first()
         if user != None:
             return False
         return True
@@ -91,13 +91,13 @@ class EditProfileForm(Form):
 
 class ChangeForm(Form):
     '''change an existed article'''
-    title = TextField('title', validators = [DataRequired()])
-    content = CKEditorField('content', validators = [Length(min = 0, max=140)])
+    title = TextField('title', validators=[DataRequired()])
+    content = CKEditorField('content', validators=[Length(min=0, max=1200)])
 
 class PostForm(Form):
     '''write a new article'''
-    title = TextField('title', validators = [DataRequired(Length(min =0,max=120))])
-    content = TextAreaField('content', validators = [Length(min = 0, max=1200)])
+    title = TextField('title', validators=[DataRequired(Length(min=0,max=120))])
+    content = TextAreaField('content', validators=[Length(min = 0, max=1200)])
 
 #ask for an email for reset 
 class ResetPasswordRequestForm(Form):

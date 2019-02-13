@@ -25,4 +25,4 @@ class Config(object):
     CKEDITOR_ENABLE_CODESNIPPET = True
     CKEDITOR_FILE_UPLOADER = 'upload'
     CKEDITOR_SERVE_LOCAL = True
-    UPLOADED_PATH = os.path.join(basedir,'pictures\\ckeditor')
+    UPLOADED_PATH = os.path.join(basedir,'pictures','ckeditor')
