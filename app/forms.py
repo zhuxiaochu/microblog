@@ -1,15 +1,17 @@
 from collections import defaultdict
 from flask_wtf import FlaskForm as Form
 from app.models import User, RegistCode
-from wtforms.fields import (StringField,TextField,TextAreaField,SubmitField,BooleanField,
-                            PasswordField)
-from wtforms.validators import DataRequired, Length, ValidationError, Email, EqualTo
+from wtforms.fields import (StringField,TextField,TextAreaField,SubmitField,
+    BooleanField, PasswordField)
+from wtforms.validators import (DataRequired, Length, ValidationError, Email,
+    EqualTo)
 from flask_ckeditor import CKEditorField
 from app import db
 
 
 class LoginForm(Form):
-    username = StringField(validators=[DataRequired(), Length(max=25)],label='Username')
+    username = StringField(validators=[DataRequired(), Length(max=25)], 
+        label='Username')
     password = StringField(validators=[DataRequired(), Length(max=15)])
     remember_me = BooleanField('check', default=False)
     submit = SubmitField('登录')
@@ -38,12 +40,11 @@ class SignUpForm(Form):
                              message='前后输入的密码不一样')])
     submit = SubmitField('注册')
 
-
-
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError('用户名已存在')
+
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
@@ -92,12 +93,12 @@ class EditProfileForm(Form):
 class ChangeForm(Form):
     '''change an existed article'''
     title = TextField('title', validators=[DataRequired()])
-    content = CKEditorField('content', validators=[Length(min=0, max=1200)])
+    content = CKEditorField('content', validators=[Length(min=0, max=12000)])
 
 class PostForm(Form):
     '''write a new article'''
     title = TextField('title', validators=[DataRequired(Length(min=0,max=120))])
-    content = TextAreaField('content', validators=[Length(min = 0, max=1200)])
+    content = TextAreaField('content', validators=[Length(min = 0, max=12000)])
 
 #ask for an email for reset 
 class ResetPasswordRequestForm(Form):

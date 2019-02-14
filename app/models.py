@@ -36,7 +36,10 @@ class User(UserMixin,db.Model):
 	posts = db.relationship('Post', backref = 'author', lazy='dynamic')
 	about_me = db.Column(db.String(140))
 	last_seen = db.Column(db.DateTime)
-	login_record = db.relationship('LoginRecord', backref='owner', lazy='dynamic')
+	login_record = db.relationship('LoginRecord', backref='owner',
+		lazy='dynamic')
+	upload_image = db.relationship('UploadImage', backref='uploader',
+		lazy='dynamic')
 
 	followed = db.relationship(
 		'User', secondary=followers,
@@ -64,7 +67,8 @@ class User(UserMixin,db.Model):
 
 	def avatar(self, size):
 		digest = md5(self.email.lower().encode('utf-8')).hexdigest()
-		return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest,size)	
+		return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
+			digest,size)	
 		
 	def __repr__(self):
 		return '<User %r>' % (self.username)
@@ -96,7 +100,7 @@ class User(UserMixin,db.Model):
 class Post(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.String(100))
-	content = db.Column(db.String(140))                                    #140 won't limit text'length
+	content = db.Column(db.String(140))                                    #autoincrease
 	time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -124,6 +128,8 @@ class RegistCode(db.Model):
 			registcode = RegistCode.query.filter_by(verify_code=code).first()
 		self.verify_code = code
 
+	def __repr__(self):
+		return '<RegistCode %r>' % (self.email)
 
 class LoginRecord(db.Model):
 	'''login record'''
@@ -135,3 +141,15 @@ class LoginRecord(db.Model):
 
 	def __repr__(self):
 		return '<LoginRecord %r>' % (self.owner.username)
+
+
+class UploadImage(db.Model):
+	'''mark image,mark=0 means image can be deleted later'''
+	id = db.Column(db.Integer, primary_key=True)
+	image_path = db.Column(db.String(64))
+	upload_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+	mark = db.Column(db.Integer, index=True, default=0)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+	def __repr__(self):
+		return '<UploadImage %r>' % (self.uploader.username)

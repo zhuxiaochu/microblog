@@ -403,3 +403,7 @@ textarea,
 textarea.span5 {
   resize: none;
 }
+
+input.span5 {
+  width: 30em;
+}

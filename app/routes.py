@@ -5,7 +5,7 @@ from flask import (render_template, flash, url_for, session, redirect, request,
     abort, send_from_directory)
 from app import app, db, login, limiter, csrf
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import Post, User, RegistCode
+from app.models import Post, User, RegistCode, UploadImage
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
     EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm)
 from datetime import datetime,timedelta
@@ -32,8 +32,8 @@ def before_request():
 def index(page=1):
     user = User.query.filter_by(role=1,
         username=app.config['DATABASE_ADMIN']).first()
-    if user is not None:
-        posts = user.posts.order_by(db.desc(Post.time)).paginate(page, 5, False)
+    if user:
+        posts = user.posts.order_by(db.desc(Post.time)).paginate(page, 10, False)
         if posts.pages < page and page > 1:
             abort(404)
     else:
@@ -258,7 +258,25 @@ def write():
         post = Post(title=form.title.data, content=form.content.data,
             user_id = current_user.id)
         db.session.add(post)
-        db.session.commit()
+        soup_post = BeautifulSoup(post.content, 'lxml')
+        img_set = {img['src'] for img in soup_post.find_all('img')}
+        if img_set:
+            for img in img_set:
+                f_fullname = os.path.basename(img)
+                f_path = os.path.join(
+                    app.config['UPLOADED_PATH'],
+                    str(current_user.id),
+                    f_fullname)
+                db_image = UploadImage.query.filter_by(
+                    user_id=current_user.id,
+                    image_path=f_path).first()
+                if db_image:
+                    db_image.mark = 1
+            try:
+                db.session.commit()
+            except:
+                flash('服务异常')
+                return render_template('write.html', title='写作ing',form=form)
         flash('提交成功!')
         return redirect(url_for('user', username=current_user.username))
     return render_template('write.html', title='写作ing',form=form)
@@ -270,7 +288,7 @@ def write():
 def verify():
     receive_email = request.form['email']
     registcode = RegistCode.query.filter_by(email=receive_email).first_or_404()
-    if registcode is not None:
+    if registcode:
         registcode.generate_code()
     else:
         registcode = RegistCode()
@@ -309,7 +327,7 @@ def upload():
     if extension[-1].lower() not in ['jpg', 'gif', 'png', 'jpeg']\
             and len(extension) == 1:
         return upload_fail(message='Image only!')
-    f_fullname = basename + '_' + str(int(time()*100)) + '.' + extension[0]
+    f_fullname = basename[:10] + '_' + str(int(time()*100)) + '.' + extension[0]
     if not os.path.exists(os.path.join(app.config['UPLOADED_PATH'],
             str(current_user.id))):
         os.mkdir(os.path.join(app.config['UPLOADED_PATH'],
@@ -317,6 +335,12 @@ def upload():
     f_path = os.path.join(app.config['UPLOADED_PATH'], str(current_user.id),
         f_fullname)
     f.save(f_path)
+    image = UploadImage(image_path=f_path, user_id=current_user.id)
+    try:
+        db.session.add(image)
+        db.session.commit()
+    except:
+        print('database error')
     url = url_for('uploaded_files', filename=f_fullname)
     return upload_success(url=url)
 
