@@ -5,9 +5,9 @@ from flask import (render_template, flash, url_for, session, redirect, request,
     abort, send_from_directory)
 from app import app, db, login, limiter, csrf
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import Post, User, RegistCode, UploadImage
+from app.models import Post, User, RegistCode, UploadImage, LeaveMessage
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
-    EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm)
+    EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, LeaveMsgForm)
 from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
@@ -17,6 +17,10 @@ from flask_ckeditor import upload_success, upload_fail
 @login.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+@limiter.request_filter
+def header_whitelist():
+    return request.method == 'POST'
 
 
 @app.before_request
@@ -77,7 +81,7 @@ def reset_password_request():
     form = ResetPasswordRequestForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user:
+        if user and not app.config['NO_EMAIL']:
             try:
                 send_password_reset_email(user)
                 flash('重置链接已发送，请检查你的邮箱。')
@@ -109,21 +113,39 @@ def reset_password(token):
 @app.route('/logout')
 @login_required
 def logout():
-    try:
-        img = Image.query.filter_by(user_id=current_user.id).all()
-        for n in img:
-            db.session.delete(n)
-        db.session.commit()
-    except:
-        logout_user()
-        return redirect(url_for('index'))
     logout_user()
     return redirect(url_for('index'))
 
 
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
+@app.route('/contact', methods=['GET','POST'])
+@limiter.limit("80/day;30/hour;10/minute")
+def contact(page=1):
+    form = LeaveMsgForm()
+    if form.validate_on_submit():
+        msg = LeaveMessage(name=form.name.data, content=form.content.data,
+            email=form.email.data, user_id=
+                current_user.id if current_user.is_authenticated else 0)
+        try:
+            db.session.add(msg)
+            db.session.commit()
+        except:
+            app.logger.error('database error!')
+        flash('提交成功')
+    msgs = LeaveMessage.query.order_by(LeaveMessage.leave_time).paginate(page,
+        20, False)
+    return render_template('contact.html', form=form, msgs=msgs)
+
+
+@app.route('/contact/delete/<msg_id>')
+@login_required
+def delete_msg(msg_id):
+    msg = LeaveMessage.query.filter_by(id=msg_id).first_or_404()
+    try:
+        db.session.delete(msg)
+        db.session.commit()
+    except:
+        app.logger.error('database error')
+    return redirect(url_for('contact'))
 
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -230,16 +252,38 @@ def change(post_id):
     if form.validate_on_submit():
         soup_post = BeautifulSoup(post.content, 'lxml')
         soup_form = BeautifulSoup(form.content.data, 'lxml')
-        img_set1 = {img['src'] for img in soup_post.find_all('img')}
-        img_set2 = {img['src'] for img in soup_form.find_all('img')}
-        delete_img = img_set1 - img_set2
+        img_post = {img['src'] for img in soup_post.find_all('img')}
+        img_form = {img['src'] for img in soup_form.find_all('img')}
+        delete_img = img_post - img_form
         if delete_img:
             for img in delete_img:
                 try:
-                    os.remove(os.path.join(app.config['UPLOADED_PATH'],
-                        os.path.basename(img)))
+                    f_path = os.path.join(app.config['UPLOADED_PATH'],
+                        current_user.id,
+                        os.path.basename(img))
+                    os.remove(f_path)
+                    db_image = UploadImage.query.filter_by(
+                        user_id=current_user.id,
+                        image_path=f_path).first()
                 except:
                     flash('异常')
+        if img_post:
+            for img in img_post:
+                f_fullname = os.path.basename(img)
+                f_path = os.path.join(
+                    app.config['UPLOADED_PATH'],
+                    str(current_user.id),
+                    f_fullname)
+                db_image = UploadImage.query.filter_by(
+                    user_id=current_user.id,
+                    image_path=f_path).first()
+                if db_image:
+                    db_image.mark = 1
+            try:
+                db.session.commit()
+            except:
+                flash('服务异常')
+                return redirect(url_for('editpost', form=form, post_id=post.id))
         post.title = form.title.data
         post.content = form.content.data
         db.session.add(post)
@@ -254,7 +298,7 @@ def change(post_id):
 @login_required
 def write():
     form = PostForm()
-    if form.validate_on_submit():
+    if form.validate_on_submit() and request.method == 'POST':
         post = Post(title=form.title.data, content=form.content.data,
             user_id = current_user.id)
         db.session.add(post)

@@ -13,6 +13,7 @@
 {% include 'flash.html' %}
 	<form  class="form-horizontal" action="{{ url_for('change',post_id=post_id)}}" method="POST" name="">
 		{{form.hidden_tag()}}
+		{{ form.csrf_token }}
 		<div class="control-group">
 	    <label for="title" class="control-label">Title:</label>
 			<div class="controls">

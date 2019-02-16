@@ -26,3 +26,16 @@ class Config(object):
     CKEDITOR_FILE_UPLOADER = 'upload'
     CKEDITOR_SERVE_LOCAL = True
     UPLOADED_PATH = os.path.join(basedir,'pictures','ckeditor')
+
+    #scheduler  use server location time.
+    JOBS = [
+        {
+            'id': 'clearimage',
+            'func': 'app.dbmanage:clear_image',
+            'trigger': 'cron',
+            'day_of_week': 0,
+            'hour': 1,
+            'minute': 5
+        }
+    ]
+    SCHEDULER_API_ENABLED = True

@@ -407,3 +407,11 @@ textarea.span5 {
 input.span5 {
   width: 30em;
 }
+
+.msgbox a {
+  color: #00acc1;
+}
+
+div.msgboard {
+  background-color: #80808024;
+}

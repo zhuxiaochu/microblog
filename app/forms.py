@@ -97,8 +97,8 @@ class ChangeForm(Form):
 
 class PostForm(Form):
     '''write a new article'''
-    title = TextField('title', validators=[DataRequired(Length(min=0,max=120))])
-    content = TextAreaField('content', validators=[Length(min = 0, max=12000)])
+    title = TextField('title', validators=[DataRequired(),Length(min=0,max=120)])
+    content = TextAreaField('content', validators=[Length(min=0, max=12000)])
 
 #ask for an email for reset 
 class ResetPasswordRequestForm(Form):
@@ -114,3 +114,10 @@ class ResetPasswordForm(Form):
         'Repeat Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('重置密码')
         
+
+class LeaveMsgForm(Form):
+    '''msg'''
+    name = StringField('name', validators=[DataRequired(), Length(min=1,max=12)])
+    email = StringField('Email')
+    content = TextAreaField('content', validators=[Length(min=3,
+        max=200, message='长度不符合要求')])

@@ -40,6 +40,8 @@ class User(UserMixin,db.Model):
 		lazy='dynamic')
 	upload_image = db.relationship('UploadImage', backref='uploader',
 		lazy='dynamic')
+	upload_image = db.relationship('LeaveMessage', backref='author',
+		lazy='dynamic')
 
 	followed = db.relationship(
 		'User', secondary=followers,
@@ -153,3 +155,19 @@ class UploadImage(db.Model):
 
 	def __repr__(self):
 		return '<UploadImage %r>' % (self.uploader.username)
+
+
+class LeaveMessage(db.Model):
+	'''message board'''
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(12))
+	content = db.Column(db.String(140))
+	email = db.Column(db.String(32), index=True)
+	leave_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), default=0)
+
+	def __repr__(self):
+		if self.user_id:
+			return '<LeaveMessage %r>' % (self.author.username)
+		else:
+			return '<LeaveMessage %r>' % (self.name)
