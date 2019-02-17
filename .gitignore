@@ -10,5 +10,4 @@ test*
 __pycache__
 /app/static/ckeditor
 /pictures/*
-/migrations/*
 
