@@ -8,6 +8,6 @@ test*
 #directory
 /logs
 __pycache__
-/app/static/ckeditor
+#/app/static/ckeditor
 /pictures/*
-
+.env
