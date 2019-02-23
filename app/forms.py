@@ -93,12 +93,12 @@ class EditProfileForm(Form):
 class ChangeForm(Form):
     '''change an existed article'''
     title = TextField('title', validators=[DataRequired()])
-    content = CKEditorField('content', validators=[Length(min=0, max=12000)])
+    content = CKEditorField('content', validators=[Length(min=0, max=19000)])
 
 class PostForm(Form):
     '''write a new article'''
     title = TextField('title', validators=[DataRequired(),Length(min=0,max=120)])
-    content = TextAreaField('content', validators=[Length(min=0, max=12000)])
+    content = TextAreaField('content', validators=[Length(min=0, max=19000)])
 
 #ask for an email for reset 
 class ResetPasswordRequestForm(Form):
@@ -121,3 +121,7 @@ class LeaveMsgForm(Form):
     email = StringField('Email')
     content = TextAreaField('content', validators=[Length(min=3,
         max=200, message='长度不符合要求')])
+
+    def validate_email(self, email):
+        if len(email.data) > 40:
+            raise ValidationError('email is too long!')

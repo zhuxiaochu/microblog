@@ -101,8 +101,8 @@ class User(UserMixin,db.Model):
 #create articles
 class Post(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
-	title = db.Column(db.String(100))
-	content = db.Column(db.String(140))                                    #autoincrease
+	title = db.Column(db.String(128))
+	content = db.Column(db.String(20000))                                    #autoincrease
 	time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -115,7 +115,7 @@ class Post(db.Model):
 class RegistCode(db.Model):
 	'''code-email table'''
 	id = db.Column(db.Integer, primary_key=True)
-	verify_code = db.Column(db.String(8), index=True)
+	verify_code = db.Column(db.String(16), index=True)
 	email = db.Column(db.String(120), index=True, unique=True)
 
 	def code_method(self):
@@ -133,6 +133,7 @@ class RegistCode(db.Model):
 	def __repr__(self):
 		return '<RegistCode %r>' % (self.email)
 
+
 class LoginRecord(db.Model):
 	'''login record'''
 	id = db.Column(db.Integer, primary_key=True)
@@ -148,7 +149,7 @@ class LoginRecord(db.Model):
 class UploadImage(db.Model):
 	'''mark image,mark=0 means image can be deleted later'''
 	id = db.Column(db.Integer, primary_key=True)
-	image_path = db.Column(db.String(64))
+	image_path = db.Column(db.String(256))
 	upload_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 	mark = db.Column(db.Integer, index=True, default=0)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -161,8 +162,8 @@ class LeaveMessage(db.Model):
 	'''message board'''
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(12))
-	content = db.Column(db.String(140))
-	email = db.Column(db.String(32), index=True)
+	content = db.Column(db.String(210))
+	email = db.Column(db.String(48), index=True)
 	leave_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
