@@ -12,6 +12,8 @@ from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
 from flask_ckeditor import upload_success, upload_fail
+from werkzeug.contrib.fixers import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
 @login.user_loader
@@ -124,7 +126,7 @@ def contact(page=1):
     if form.validate_on_submit():
         msg = LeaveMessage(name=form.name.data, content=form.content.data,
             email=form.email.data, user_id=
-                current_user.id if current_user.is_authenticated else 0)
+                current_user.id if current_user.is_authenticated else None)
         try:
             db.session.add(msg)
             db.session.commit()
@@ -380,11 +382,9 @@ def upload():
         f_fullname)
     f.save(f_path)
     image = UploadImage(image_path=f_path, user_id=current_user.id)
-    try:
-        db.session.add(image)
-        db.session.commit()
-    except:
-        print('database error')
+    db.session.add(image)
+    db.session.commit()
+    print('database error')
     url = url_for('uploaded_files', filename=f_fullname)
     return upload_success(url=url)
 

@@ -6,8 +6,11 @@
 test*
 
 #directory
-/logs
-__pycache__
-/app/static/ckeditor
+/logs/
+/__pycache__/
+#/app/static/ckeditor
 /pictures/*
-
+.env
+/venv
+/app/__pycache__/
+__pycache__

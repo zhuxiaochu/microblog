@@ -29,7 +29,7 @@
             <span>[站长]</span>
             {% endif %}
             <span>{{ moment(msg.leave_time).format('YYYY-MM-DD, HH:mm:ss') }}|</span>
-            {% if msg.user_id != 0 %}
+            {% if msg.user_id %}
             <a href="#">{{ msg.author.username }}</a>
             {% else %}
             <a href="#">匿名</a>

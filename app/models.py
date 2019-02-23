@@ -164,7 +164,7 @@ class LeaveMessage(db.Model):
 	content = db.Column(db.String(140))
 	email = db.Column(db.String(32), index=True)
 	leave_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
-	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), default=0)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 	def __repr__(self):
 		if self.user_id:
