@@ -16,7 +16,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_apscheduler import APScheduler
-
+from flask_caching import Cache
 
 
 app = Flask(__name__)
@@ -65,9 +65,11 @@ if not app.debug:
     app.logger.info('Miroblog startup~~~~~~~')
 
 mail = Mail(app)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
+
 
 from app import routes,models

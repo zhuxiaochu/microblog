@@ -3,7 +3,7 @@ from time import time
 from bs4 import BeautifulSoup
 from flask import (render_template, flash, url_for, session, redirect, request,
     abort, send_from_directory)
-from app import app, db, login, limiter, csrf
+from app import app, db, login, limiter, csrf, cache
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Post, User, RegistCode, UploadImage, LeaveMessage
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
@@ -13,6 +13,7 @@ from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
 from flask_ckeditor import upload_success, upload_fail
 from werkzeug.contrib.fixers import ProxyFix
+
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
@@ -35,6 +36,7 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 @app.route('/index/<int:page>')
+@cache.cached(timeout=120)
 def index(page=1):
     user = User.query.filter_by(role=1,
         username=app.config['DATABASE_ADMIN']).first()
@@ -118,6 +120,12 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+#@cache.cached(timeout=120) !pagination conflicts cache
+def show(page=None, per_page=None, error_out=True):
+    msgs = LeaveMessage.query.order_by(
+            LeaveMessage.leave_time).paginate(page, per_page, error_out)
+    return msgs
+
 
 @app.route('/contact', methods=['GET','POST'])
 @limiter.limit("80/day;30/hour;10/minute")
@@ -133,8 +141,7 @@ def contact(page=1):
         except:
             app.logger.error('database error!')
         flash('提交成功')
-    msgs = LeaveMessage.query.order_by(LeaveMessage.leave_time).paginate(page,
-        20, False)
+    msgs = show(page, 20, False)
     return render_template('contact.html', form=form, msgs=msgs)
 
 
@@ -209,6 +216,7 @@ def user(username, page=1):
 
 #can just see the content
 @app.route('/<username>/articles/<post_id>')
+@cache.cached(timeout=120)
 def article_detail(username, post_id):
     post = Post.query.filter_by(id=post_id).first_or_404()
     return render_template('detail.html', title='全文内容', post=post)
@@ -325,6 +333,8 @@ def write():
                 flash('服务异常')
                 return render_template('write.html', title='写作ing',form=form)
         flash('提交成功!')
+        if current_user.id == 1:
+            cache.clear()
         return redirect(url_for('user', username=current_user.username))
     return render_template('write.html', title='写作ing',form=form)
 
