@@ -304,6 +304,7 @@ def write():
         post = Post(title=form.title.data, content=form.content.data,
             user_id = current_user.id)
         db.session.add(post)
+        db.session.commit()
         soup_post = BeautifulSoup(post.content, 'lxml')
         img_set = {img['src'] for img in soup_post.find_all('img')}
         if img_set:
@@ -376,7 +377,7 @@ def upload():
     f_fullname = basename[:10] + '_' + str(int(time()*100)) + '.' + extension[0]
     if not os.path.exists(os.path.join(app.config['UPLOADED_PATH'],
             str(current_user.id))):
-        os.mkdir(os.path.join(app.config['UPLOADED_PATH'],
+        os.makedirs(os.path.join(app.config['UPLOADED_PATH'],
             str(current_user.id)))
     f_path = os.path.join(app.config['UPLOADED_PATH'], str(current_user.id),
         f_fullname)
@@ -384,7 +385,7 @@ def upload():
     image = UploadImage(image_path=f_path, user_id=current_user.id)
     db.session.add(image)
     db.session.commit()
-    print('database error')
+    app.logger.error('database error')
     url = url_for('uploaded_files', filename=f_fullname)
     return upload_success(url=url)
 
