@@ -150,6 +150,7 @@ class UploadImage(db.Model):
 	'''mark image,mark=0 means image can be deleted later'''
 	id = db.Column(db.Integer, primary_key=True)
 	image_path = db.Column(db.String(256))
+	image_name = db.Column(db.String(48))
 	upload_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 	mark = db.Column(db.Integer, index=True, default=0)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

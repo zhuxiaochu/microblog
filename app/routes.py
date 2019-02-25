@@ -59,6 +59,7 @@ def login():
                 login_user(user,remember=True,duration=timedelta(seconds=600))
             else:
                 login_user(user)
+                cache.clear()
             #user.last_seen = datetime.utcnow()
 			
             next_page = request.args.get('next')
@@ -118,6 +119,7 @@ def reset_password(token):
 @login_required
 def logout():
     logout_user()
+    cache.clear()
     return redirect(url_for('index'))
 
 #@cache.cached(timeout=120) !pagination conflicts cache
@@ -139,7 +141,7 @@ def contact(page=1):
             db.session.add(msg)
             db.session.commit()
         except:
-            app.logger.error('database error!')
+            app.logger.error('database error when leaving message!')
         flash('提交成功')
     msgs = show(page, 20, False)
     return render_template('contact.html', form=form, msgs=msgs)
@@ -362,17 +364,11 @@ def verify():
 
 
 @app.route('/files/<filename>')
-@login_required
 def uploaded_files(filename):
-    dirname = os.path.join(app.config['UPLOADED_PATH'], str(current_user.id))
-    if not os.path.exists(dirname):
-        try:
-            os.makedirs(dirname)
-        except:
-            error = 'ERROR_CREATE_DIR'
-    elif not os.access(dirname, os.W_OK):
-        error = 'ERROR_DIR_NOT_WRITEABLE'
-    #raise custom error
+    image = UploadImage.query.filter_by(
+        image_name=filename).first()
+    dirname = os.path.dirname(image.image_path)
+    
     return send_from_directory(dirname, filename)
 
 
@@ -384,15 +380,21 @@ def upload():
     if extension[-1].lower() not in ['jpg', 'gif', 'png', 'jpeg']\
             and len(extension) == 1:
         return upload_fail(message='Image only!')
+    #image_name' length
     f_fullname = basename[:10] + '_' + str(int(time()*100)) + '.' + extension[0]
-    if not os.path.exists(os.path.join(app.config['UPLOADED_PATH'],
-            str(current_user.id))):
-        os.makedirs(os.path.join(app.config['UPLOADED_PATH'],
-            str(current_user.id)))
+    f_dirname = os.path.join(app.config['UPLOADED_PATH'], str(current_user.id))
+    if not os.path.exists(f_dirname):
+        os.makedirs(f_dirname)
+    elif not os.access(f_dirname, os.W_OK):
+        app.logger.error(' '.join(f_dirname, 'Non-writable!'))
+        return upload_fail(message='Write error')   
     f_path = os.path.join(app.config['UPLOADED_PATH'], str(current_user.id),
         f_fullname)
     f.save(f_path)
-    image = UploadImage(image_path=f_path, user_id=current_user.id)
+    image = UploadImage(
+        image_path=f_path,
+        image_name=f_fullname,
+        user_id=current_user.id)
     db.session.add(image)
     db.session.commit()
     app.logger.error('database error')
