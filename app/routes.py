@@ -32,11 +32,17 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
+@app.after_request
+def add_header(response):
+    if 'Content-Type' in response.headers and\
+          '/css' in response.content_type:
+        response.cache_control.max_age = 2592000
+    return response
+
 
 @app.route('/')
 @app.route('/index')
 @app.route('/index/<int:page>')
-@cache.cached(timeout=120)
 def index(page=1):
     user = User.query.filter_by(role=1,
         username=app.config['DATABASE_ADMIN']).first()
@@ -59,7 +65,7 @@ def login():
                 login_user(user,remember=True,duration=timedelta(seconds=600))
             else:
                 login_user(user)
-                cache.clear()
+            cache.clear()
             #user.last_seen = datetime.utcnow()
 			
             next_page = request.args.get('next')
@@ -75,7 +81,7 @@ def login():
             return redirect(next_page)
         else:
             flash('用户名或密码错误！')          #Login failed, username or password error!
-            return redirect('/login')
+            return redirect('/login', code=301)
     return render_template('login.html', form=form, title='登录')
 
 
@@ -118,8 +124,8 @@ def reset_password(token):
 @app.route('/logout')
 @login_required
 def logout():
-    logout_user()
     cache.clear()
+    logout_user()
     return redirect(url_for('index'))
 
 #@cache.cached(timeout=120) !pagination conflicts cache
@@ -395,9 +401,12 @@ def upload():
         image_path=f_path,
         image_name=f_fullname,
         user_id=current_user.id)
-    db.session.add(image)
-    db.session.commit()
-    app.logger.error('database error')
+    try:
+        db.session.add(image)
+        db.session.commit()
+    except:
+        app.logger.error('database error')
+        return upload_fail(message='Database error!')
     url = url_for('uploaded_files', filename=f_fullname)
     return upload_success(url=url)
 

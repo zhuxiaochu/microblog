@@ -17,6 +17,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_apscheduler import APScheduler
 from flask_caching import Cache
+from flask_talisman import Talisman
 
 
 app = Flask(__name__)
@@ -33,6 +34,22 @@ login.login_message = '先登录，好吗？'
 moment = Moment(app)
 ckeditor = CKEditor(app)
 csrf = CSRFProtect(app)
+csp = {
+    'default-src': [
+        '\'self\'',
+        'fonts.googleapis.com',
+        '*.gstatic.com'
+    ],
+    'img-src': '*',
+    'style-src': [
+        '\'self\'',
+        '*.googleapis.com',
+        '*.gstatic.com'
+    ]
+}
+#Talisman(app, force_https_permanent=True,
+#   content_security_policy=csp,
+#   content_security_policy_nonce_in=['script-src','style-src'])
 
 limiter = Limiter(app, key_func=get_remote_address)
 

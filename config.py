@@ -6,6 +6,7 @@ load_dotenv(os.path.join(basedir,'.env'))
 
 class Config(object):
     '''all important params should be set properly'''
+    SEND_FILE_MAX_AGE_DEFAULT = 432000
     SRF_ENABLED = True
     SECRET_KEY = os.environ.get('SECRET_KEY') or \
         'Could-you-please-tell-ME-when-to-go-home'

@@ -20,7 +20,9 @@ Flask-Mail==0.9.1
 Flask-Migrate==2.3.1
 Flask-Moment==0.6.0
 Flask-SQLAlchemy==2.3.2
+flask-talisman==0.6.0
 Flask-WTF==0.14.2
+gunicorn==19.9.0
 hyperlink==18.0.0
 idna==2.8
 incremental==17.5.0
@@ -37,6 +39,7 @@ pycparser==2.19
 PyDispatcher==2.0.5
 PyHamcrest==1.9.0
 PyJWT==1.7.1
+PyMySQL==0.9.3
 pyOpenSSL==18.0.0
 python-dateutil==2.7.5
 python-dotenv==0.10.1
