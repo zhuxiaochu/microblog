@@ -2,7 +2,7 @@ import os
 from time import time
 from bs4 import BeautifulSoup
 from flask import (render_template, flash, url_for, session, redirect, request,
-    abort, send_from_directory)
+    abort, send_from_directory, jsonify)
 from app import app, db, login, limiter, csrf, cache
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Post, User, RegistCode, UploadImage, LeaveMessage
@@ -23,7 +23,7 @@ def load_user(user_id):
 
 @limiter.request_filter
 def header_whitelist():
-    return request.method == 'POST'
+    return request.method == 'GET'
 
 
 @app.before_request
@@ -47,7 +47,8 @@ def index(page=1):
     user = User.query.filter_by(role=1,
         username=app.config['DATABASE_ADMIN']).first()
     if user:
-        posts = user.posts.order_by(db.desc(Post.time)).paginate(page, 10, False)
+        posts = user.posts.order_by(db.desc(Post.time)).paginate(
+            page, 10, False)
         if posts.pages < page and page > 1:
             abort(404)
     else:
@@ -138,6 +139,28 @@ def show(page=None, per_page=None, error_out=True):
 @app.route('/contact', methods=['GET','POST'])
 @limiter.limit("80/day;30/hour;10/minute")
 def contact(page=1):
+    per_page = 3
+    page_num = request.args.get('page')
+    if page_num:
+        msgs = show(int(page_num), per_page, False)
+        if msgs.items:
+            next_content = {}
+            num = 0
+            for n,l in enumerate(msgs.items):
+                num += 1
+                next_content[n] = {'name':l.name,
+                                   'content':l.content,
+                                   'leave_time':l.leave_time,
+                                   'user_id' :l.user_id,
+                                   'role':'站长' if l.user_id == 1\
+                                   else '匿名'}
+            #when json encode,function sort will go wrong,so i define the order
+            next_content[997] = str(per_page) #max_total_number
+            next_content[998] = str(num)  #real_total_number
+            next_content[999] = str(msgs.prev_num)  
+            next_content[1000] = str(msgs.next_num)
+        else: next_content = None
+        return jsonify(next_content)
     form = LeaveMsgForm()
     if form.validate_on_submit():
         msg = LeaveMessage(name=form.name.data, content=form.content.data,
@@ -149,7 +172,7 @@ def contact(page=1):
         except:
             app.logger.error('database error when leaving message!')
         flash('提交成功')
-    msgs = show(page, 20, False)
+    msgs = show(page, per_page, False)
     return render_template('contact.html', form=form, msgs=msgs)
 
 

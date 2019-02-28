@@ -19,7 +19,8 @@
           <div class="col-lg-8 col-md-10 mx-auto">
             <form class="form-horizontal" action="{{ url_for('signup') }}" method="POST" onsubmit="return checkSubmit()">
                 {{ form.hidden_tag() }}
-                <span class="heading">注册新用户</span>
+                <span class="heading">注册新用户</span><br>
+                <span style="color: red">实际注册不会被通过！(just a demo)</span>
                 {% include "flash.html" %}
                 <div class="form-group">
                     {{ form.username(class="form-control", id="username", placeholder="用户名",onblur='checkUsername()')}}
@@ -72,4 +73,7 @@
           </div>
         </div>
       </div>
+{% endblock %}
+{% block script %}
+<script src="/static/js/sign-up.min.js"></script>
 {% endblock %}
