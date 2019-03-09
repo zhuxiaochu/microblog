@@ -43,3 +43,11 @@ class Config(object):
         }
     ]
     SCHEDULER_API_ENABLED = True
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE')\
+        is None
+    #flask-login
+    REMEMBER_COOKIE_SECURE = True
+    REMEMBER_COOKIE_HTTPONLY = True
+    #flask-wtf
+    WTF_CSRF_TIME_LIMIT = 28800 #eight hours,means that you shouldn't \
+                                #write an article for more than eight hours

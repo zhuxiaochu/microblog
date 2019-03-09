@@ -5,9 +5,11 @@ from flask import (render_template, flash, url_for, session, redirect, request,
     abort, send_from_directory, jsonify)
 from app import app, db, login, limiter, csrf, cache
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import Post, User, RegistCode, UploadImage, LeaveMessage
+from app.models import (Post, User, RegistCode, UploadImage, LeaveMessage,
+    PostCat)
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
-    EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, LeaveMsgForm)
+    EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, LeaveMsgForm,
+    AddCat)
 from datetime import datetime,timedelta
 from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
@@ -139,7 +141,7 @@ def show(page=None, per_page=None, error_out=True):
 @app.route('/contact', methods=['GET','POST'])
 @limiter.limit("80/day;30/hour;10/minute")
 def contact(page=1):
-    per_page = 3
+    per_page = 15
     page_num = request.args.get('page')
     if page_num:
         msgs = show(int(page_num), per_page, False)
@@ -280,6 +282,7 @@ def editpost(post_id):
         abort(404)
     form.title.data = post.title
     form.content.data = post.content
+    form.cat.data = post.cat_id
     return render_template('editpost.html', form=form, post_id=post.id)
 
 
@@ -327,11 +330,14 @@ def change(post_id):
                 return redirect(url_for('editpost', form=form, post_id=post.id))
         post.title = form.title.data
         post.content = form.content.data
+        post.cat_id = form.cat.data
         db.session.add(post)
         db.session.commit()
         flash('你的修改已经保存.')
         return redirect(url_for('user', username=current_user.username))
-    flash('修改异常！')
+    else:
+        flash('修改异常！')
+        app.logger.error(form.errors)
     return redirect(url_for('editpost', form=form, post_id=post.id))
 
 
@@ -341,7 +347,7 @@ def write():
     form = PostForm()
     if form.validate_on_submit() and request.method == 'POST':
         post = Post(title=form.title.data, content=form.content.data,
-            user_id = current_user.id)
+            user_id=current_user.id, cat_id=form.cat.data)
         db.session.add(post)
         db.session.commit()
         soup_post = BeautifulSoup(post.content, 'lxml')
@@ -432,6 +438,32 @@ def upload():
         return upload_fail(message='Database error!')
     url = url_for('uploaded_files', filename=f_fullname)
     return upload_success(url=url)
+
+
+@app.route('/control')
+@login_required
+def control():
+    cat = AddCat()
+    return render_template('control.html', cat=cat)
+
+
+@app.route('/addcat', methods=['POST'])
+@login_required
+def add_cat():
+    cat = AddCat()
+    if cat.validate_on_submit():
+        query_cat = PostCat.query.filter_by(name=cat.name.data).first()
+        if not query_cat:
+            new_cat = PostCat(name=cat.name.data)
+            try:
+                db.session.add(new_cat)
+                db.session.commit()
+                flash('类别增加成功')
+            except:
+                app.logger.error('database errror when add new cat')
+        else:
+            flash('类别已存在!')
+    return render_template('control.html', cat=cat)
 
 
 #error pages

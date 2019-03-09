@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block stylesheet %}
-<link rel="stylesheet" type="text/css" href="/static/css/login.css">
 <style>
     .nav-link,
     .navbar-brand {
@@ -12,14 +11,19 @@
 <div class="container move-down">
 {% include 'flash.html' %}
 	<form  class="form-horizontal" action="{{ url_for('change',post_id=post_id)}}" method="POST" name="">
-		{{form.hidden_tag()}}
-		{{ form.csrf_token }}
+		{{ form.hidden_tag() }}
 		<div class="control-group">
 	    <label for="title" class="control-label">Title:</label>
 			<div class="controls">
 				{{ form.title(maxlength=64, class="span5") }}
 			</div>
 		</div>
+        <div class="control-group">
+        <label for="cate" class="control-label">Choose a cate:</label>
+            <div class="controls">
+                {{ form.cat() }}
+            </div>
+        </div>
 		<div class="control-group">
 	   	 <label for="content" class="control-label">Content:</label>
 			<div class="controls">

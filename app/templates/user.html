@@ -45,6 +45,13 @@
                 <a href="{{ url_for('write') }}">写文章</a>
             </td>
         </tr>
+        {% if user.id == 1 %}
+        <tr>
+            <td>
+                <a href="{{ url_for('control') }}">后台管理</a>
+            </td>
+        </tr>
+        {% endif %}
       </table>
     </div>
 </header>

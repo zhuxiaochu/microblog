@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block stylesheet %}
+<link rel="stylesheet" type="text/css" href="/static/css/login.css">
+<style>
+    .nav-link,
+    .navbar-brand {
+        color: black !important;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row move-down">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <form class="form-horizontal" action="/addcat" method="POST">
+            {% include "flash.html" %}
+            {{ cat.hidden_tag() }}
+              <span>新的类别：</span>
+              {{ cat.name(id="cate") }}
+              <input type="submit" value="提交"></button>
+          </form>
+        </div>  
+    </div>
+</div>
+{% endblock %}

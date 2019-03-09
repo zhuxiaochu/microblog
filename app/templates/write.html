@@ -12,13 +12,18 @@
 <div class="container move-down">
 	<form  class="form-horizontal" action="" method="POST">
 		{{ form.hidden_tag() }}
-		{{ form.csrf_token }}
 		<div class="control-group">
 	    <label for="title" class="control-label">Title:</label>
 			<div class="controls">
 				{{ form.title(maxlength=64, class="span5") }}
 			</div>
 		</div>
+        <div class="control-group">
+        <label for="cate" class="control-label">Choose a cate:</label>
+            <div class="controls">
+                {{ form.cat() }}
+            </div>
+        </div>
 		<div class="control-group">
 	   	 <label for="content" class="control-label">Content:</label>
 			<div class="controls">

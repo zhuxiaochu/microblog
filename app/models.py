@@ -25,6 +25,11 @@ followers = db.Table('followers',
 	db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
 
+#post_tag_relationship
+p_tag_rel = db.Table('p_tag_rel',
+	db.Column('tag_id', db.Integer, db.ForeignKey('post_tag.id')),
+	db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
+)
 
 #create user orm
 class User(UserMixin,db.Model):
@@ -40,13 +45,13 @@ class User(UserMixin,db.Model):
 		lazy='dynamic')
 	upload_image = db.relationship('UploadImage', backref='uploader',
 		lazy='dynamic')
-	upload_image = db.relationship('LeaveMessage', backref='author',
+	leave_message = db.relationship('LeaveMessage', backref='author',
 		lazy='dynamic')
 
 	followed = db.relationship(
 		'User', secondary=followers,
 		primaryjoin=(followers.c.follower_id == id),
-		secondaryjoin=(followers.c.followed_id == id ),
+		secondaryjoin=(followers.c.followed_id == id),
 		backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
 	def follow(self, user):
@@ -98,6 +103,7 @@ class User(UserMixin,db.Model):
 			return
 		return User.query.get(id)
 
+
 #create articles
 class Post(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -105,6 +111,10 @@ class Post(db.Model):
 	content = db.Column(db.String(20000))                                    #autoincrease
 	time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	cat_id = db.Column(db.Integer, db.ForeignKey('post_cat.id'))
+	tags = db.relationship('PostTag',
+		secondary=p_tag_rel,
+		backref=db.backref('posts', lazy='dynamic'), lazy='dynamic')
 
 	def __repr__(self):
 		return '<Post %r>' % (self.title)
@@ -173,3 +183,23 @@ class LeaveMessage(db.Model):
 			return '<LeaveMessage %r>' % (self.author.username)
 		else:
 			return '<LeaveMessage %r>' % (self.name)
+
+
+class PostCat(db.Model):
+	'''category for post'''
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(12))
+	posts = db.relationship('Post', backref='cat', lazy='dynamic')
+
+	def __repr__(self):
+		return '<PostCat %r>' % (self.name)
+
+
+class PostTag(db.Model):
+	'''tags for post'''
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(12))
+
+	def __repr__(self):
+		return '<PostTag %r>' % (self.name)
+
