@@ -415,3 +415,52 @@ input.span5 {
 div.msgboard {
   background-color: #80808024;
 }
+
+.nav-tabs-primary li>a {
+  padding: 10px 15px;
+  color: #009961;
+  border-width: 0;
+}
+
+.nav-tabs>li>a {
+  margin-right: 2px;
+  line-height: 1.42858;
+  border: 1px solid transparent;
+  border-radius: 30px 30px 0 0;
+}
+
+.category>div {
+  background-color: #f6f6f6;
+  border-radius: 10px 10px;
+}
+
+.nav>li>a:hover,
+.nav>li>a:focus {
+  text-decoration: none;
+  background-color: #eee;
+}
+
+.nav>li>a {
+  position: relative;
+  display: block;
+}
+
+.nav-tabs {
+  border: none;
+}
+
+.nav-tabs-primary li.active>a {
+  padding-bottom: 6px;
+  color: #212121;
+  background: none;
+  border-width: 0;
+  border-bottom: 2px solid #009a61;
+}
+
+footer > div > div > div > p {
+  margin: 3px 0;
+}
+
+.marker {
+  background-color: yellow;
+}

@@ -60,7 +60,6 @@ CKEDITOR.stylesSet.add( 'default', [
 	*/
 
 	{ name: 'Marker',			element: 'span', attributes: { 'class': 'marker' } },
-
 	{ name: 'Big',				element: 'big' },
 	{ name: 'Small',			element: 'small' },
 	{ name: 'Typewriter',		element: 'tt' },
@@ -134,4 +133,5 @@ CKEDITOR.stylesSet.add( 'default', [
 	{ name: '1080p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-1080p' }, group: 'size' }
 
 ] );
+
 

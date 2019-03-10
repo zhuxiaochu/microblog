@@ -99,7 +99,7 @@
           <div class="col-lg-8 col-md-10 mx-auto">
             <ul class="list-inline text-center">
               <li class="list-inline-item">
-                <a href="#">
+                <a tabindex="0" class="popover-dismiss" data-placement="top" role="button" data-toggle="popover" data-trigger="focus" title="Dismissible popover" data-content="404~~">
                   <span class="fa-stack fa-lg">
                     <i class="fa fa-circle fa-stack-2x"></i>
                     <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
@@ -107,7 +107,7 @@
                 </a>
               </li>
               <li class="list-inline-item">
-                <a href="#">
+                <a tabindex="0" class="popover-dismiss" data-placement="top" role="button" data-toggle="popover" data-trigger="focus" title="Dismissible popover" data-content="404~~">
                   <span class="fa-stack fa-lg">
                     <i class="fa fa-circle fa-stack-2x"></i>
                     <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
@@ -127,8 +127,8 @@
             <p class="copyright text-muted">
             <a href="http://www.miitbeian.gov.cn/state/outPortal/loginPortal.action" rel="nofollow">浙ICP备18056526号-1	</a>
             </p>
-            <p class="copyright text-muted">powered by<a href="http://flask.pocoo.org/" rel="nofollow">flask</a>,<a href="https://cloud.tencent.com/" rel="nofollow">腾讯云</a></p>
-			<p class="copyright text-muted">网站主体代码》》<a href="https://github.com/zhuxiaochu/microblog" rel="nofollow">DEMO</a></p>
+            <p class="copyright text-muted">powered by<a href="http://flask.pocoo.org/" rel="nofollow"> flask</a>, <a href="https://cloud.tencent.com/" rel="nofollow">腾讯云</a></p>
+			<p class="copyright text-muted">网站主体代码 》》<a href="https://github.com/zhuxiaochu/microblog" rel="nofollow">DEMO</a></p>
           </div>
         </div>
       </div>
@@ -139,7 +139,7 @@
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     {{ moment.include_moment(local_js='/static/js/moment-with-locales.min.js') }}
     <!-- Custom scripts for this template -->
-    <script src="/static/js/microblog.min.js"></script>
+    <script src="/static/js/microblog.js"></script>
     {% block script %}{% endblock %}
   </body>
 </html>

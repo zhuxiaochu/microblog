@@ -55,7 +55,8 @@ def index(page=1):
             abort(404)
     else:
         posts = None
-    return render_template('index.html', user=user, posts=posts)
+    cats = PostCat.query.all()
+    return render_template('index.html', user=user, posts=posts, cats=cats)
 
 
 @app.route('/login',methods=['GET','POST'])
@@ -465,6 +466,11 @@ def add_cat():
             flash('类别已存在!')
     return render_template('control.html', cat=cat)
 
+
+@app.route('/category/<cate>')
+def choose_cate(cate):
+    posts = Post.query.all()
+    return render_template('category.xml', posts=posts)
 
 #error pages
 @app.errorhandler(404)

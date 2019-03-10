@@ -22,6 +22,24 @@
         </div>
       </div>
     </header>
+    
+    <!--category-->
+    <div class="category" id="category">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <ul class="search-category nav nav-tabs nav-tabs-primary">
+          <li class="active">
+            <a href="#category" class="" id="cate0">全部</a>
+          </li>
+          {% if cats %}
+            {% for cat in cats %}
+            <li>
+              <a href="#category" id="cate{{ cat.id }}">{{ cat.name }}</a>
+            </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
 
     {% if user %}
       <div class="container">
@@ -39,8 +57,9 @@
                   &nbsp;&nbsp;&nbsp;&nbsp;{{ post.content|truncate(200, True)|striptags }}
                 </p>
                 <p class="post-meta">Posted by
-                <a href="#">{{ user.username }}</a>
-                on {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}</p>
+                <a href="#row2">{{ post.author.username }}</a>
+                on {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}<span>&nbsp;{{ post.cat.name }}</span>
+                </p>
               </div>
             {% endfor %}
               <hr>
@@ -129,6 +148,9 @@
       </div>
     </div>
     {% endif %}
+{% endblock %}
+{% block script %}
+  <script src="/static/js/index.js"></script>
 {% endblock %}
     
 
