@@ -405,7 +405,7 @@ textarea.span5 {
 }
 
 input.span5 {
-  width: 30em;
+  width: 70%;
 }
 
 .msgbox a {
@@ -464,3 +464,21 @@ footer > div > div > div > p {
 .marker {
   background-color: yellow;
 }
+
+span.cate {
+    font-family: Helvetica, Arial, sans-serif;
+    background: #ebebeb;
+    display: inline-block;
+    position: relative;
+    border-top-left-radius: 7px;
+    border-bottom-left-radius: 7px;
+    margin: 0 10px 0 10px;
+    text-decoration: none;
+    color: #15a6db;
+
+}
+
+pre {
+  background: #23241f;
+}
+

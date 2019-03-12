@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <v>
-    {% for post in posts %}
+    {% if posts %}
+    <info>
+        <exp_num>{{ posts.per_page }}</exp_num>
+        <real_num>{{ posts.total }}</real_num>
+        <next_num>{{ posts.next_num }}</next_num>
+        <prev_num>{{ posts.prev_num }}</prev_num>
+    </info>
+    {% for post in posts.items %}
     <article num="{{ loop.index }}">
-        <title>
-        {{ post.title }}
-        </title>
-        <content>
-        {{ post.content|truncate(200, True)|striptags}}
-        </content>
-        <time>
-        {{ post.time }}
-        </time>
-        <author>
-        {{ post.author.username }}
-        </author>
-        <cate>
-        {{ post.cat.name }}
-        </cate>
-        <url>
-        {{ url_for('article_detail', username=post.author.username, post_id=post.id)}}
-        </url>
+        <title>{{ post.title }}</title>
+        <content>{{ post.content|truncate(200, True)|striptags}}</content>
+        <time>{{ post.time }}</time>
+        <author>{{ post.author.username }}</author>
+        <cate>{{ post.cat.name }}</cate>
+        <url>{{ url_for('article_detail', username=post.author.username, post_id=post.id)}}</url>
     </article>
     {% endfor %}
+    {% endif %}
 </v>

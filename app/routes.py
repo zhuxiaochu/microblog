@@ -50,17 +50,18 @@ def index(page=1):
         username=app.config['DATABASE_ADMIN']).first()
     if user:
         posts = user.posts.order_by(db.desc(Post.time)).paginate(
-            page, 10, False)
+            page, app.config['POST_PER_PAGE'], False)
         if posts.pages < page and page > 1:
             abort(404)
     else:
         posts = None
     cats = PostCat.query.all()
-    return render_template('index.html', user=user, posts=posts, cats=cats)
+    return render_template('index.html', user=user, posts=posts,
+                          cats=cats, page=page)
 
 
 @app.route('/login',methods=['GET','POST'])
-def login():
+def login():    
     form = LoginForm()
     if form.validate_on_submit():
         user = User.login_check(form.username.data)
@@ -145,6 +146,8 @@ def contact(page=1):
     per_page = 15
     page_num = request.args.get('page')
     if page_num:
+        if not request.is_xhr:
+            abort(404)
         msgs = show(int(page_num), per_page, False)
         if msgs.items:
             next_content = {}
@@ -250,7 +253,7 @@ def user(username, page=1):
 
 #can just see the content
 @app.route('/<username>/articles/<post_id>')
-@cache.cached(timeout=120)
+@cache.cached(timeout=240)
 def article_detail(username, post_id):
     post = Post.query.filter_by(id=post_id).first_or_404()
     return render_template('detail.html', title='全文内容', post=post)
@@ -334,6 +337,7 @@ def change(post_id):
         post.cat_id = form.cat.data
         db.session.add(post)
         db.session.commit()
+        cache.clear()
         flash('你的修改已经保存.')
         return redirect(url_for('user', username=current_user.username))
     else:
@@ -402,7 +406,7 @@ def verify():
 @app.route('/files/<filename>')
 def uploaded_files(filename):
     image = UploadImage.query.filter_by(
-        image_name=filename).first()
+        image_name=filename).first_or_404()
     dirname = os.path.dirname(image.image_path)
     
     return send_from_directory(dirname, filename)
@@ -445,10 +449,11 @@ def upload():
 @login_required
 def control():
     cat = AddCat()
-    return render_template('control.html', cat=cat)
+    cats = PostCat.query.order_by('name').all()
+    return render_template('control.html', cat=cat, cats=cats)
 
 
-@app.route('/addcat', methods=['POST'])
+@app.route('/category/add', methods=['POST'])
 @login_required
 def add_cat():
     cat = AddCat()
@@ -467,10 +472,50 @@ def add_cat():
     return render_template('control.html', cat=cat)
 
 
-@app.route('/category/<cate>')
-def choose_cate(cate):
-    posts = Post.query.all()
+@app.route('/category/del', methods=['POST'])
+@login_required
+def del_cat():
+    cat_id = request.form['cat']
+    if cat_id:
+        cat = PostCat.query.filter_by(id=cat_id).first()
+        if cat:
+            try:
+                db.session.delete(cat)
+                db.session.commit()
+                flash('成功删除')
+            except:
+                app.logger.warning("can't delete {0}".format(cat.name))
+    return redirect('control'), 301
+
+
+@app.route('/category')
+def choose_cate():
+    if not request.is_xhr:
+        abort(404)
+    cat_id = request.args.get('cat_id','0')
+    page = request.args.get('page','1')
+    if len(cat_id) > 9 or len(page) > 9:
+        abort(404)
+    try:
+        cat_id = int(cat_id)
+        page = int(page)
+    except ValueError:
+        app.logger.warning('Bad value for cat_id or page.')
+        abort(404)
+    if cat_id < 0 or page < 1:
+        abort(404)
+    if cat_id is None:
+        posts = None
+    elif int(cat_id) == 0:
+        posts = Post.query.order_by(db.desc(Post.time)).paginate(
+            page, app.config['POST_PER_PAGE'], False)
+    else:
+        posts = Post.query.filter_by(
+            cat_id=int(cat_id)).order_by(
+            db.desc(Post.time)).paginate(
+            page, app.config['POST_PER_PAGE'], False)
     return render_template('category.xml', posts=posts)
+
 
 #error pages
 @app.errorhandler(404)

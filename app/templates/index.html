@@ -47,7 +47,7 @@
           {% if posts %}
             <div class="col-lg-8 col-md-10 mx-auto">
             {% for post in posts.items %}
-              <div class="post-preview">
+              <div class="post-preview" id="post{{ loop.index}}">
                 <a href="{{ url_for('article_detail', username=user.username, post_id=post.id)}}">
                   <h2 class="post-title">
                     {{ post.title }}
@@ -58,7 +58,8 @@
                 </p>
                 <p class="post-meta">Posted by
                 <a href="#row2">{{ post.author.username }}</a>
-                on {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}<span>&nbsp;{{ post.cat.name }}</span>
+                on <span class="time">{{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}</span>
+                <span class="cate">{{ post.cat.name }}</span>
                 </p>
               </div>
             {% endfor %}
@@ -66,12 +67,13 @@
               <!-- Pager -->
               <div class="clearfix">
                 {% if posts.has_prev %}
-                 <a class="tn btn-primary float-left" href="{{ url_for('index', page=posts.prev_num) }}">&larr; 上一页</a>
+                  <a class="tn btn-primary float-left" href="#row2" onclick="prev()">&larr; 上一页</a>
                 {% else %}
-                    <a href=""></a>
+                  <a class="tn btn-primary float-left" href=""></a>
                 {% endif %}
+                  <a class="tn btn-primary" hidden="">第<span class="page">{{ page }}</span>页</a>
                 {% if posts.has_next %}
-                 <a class="tn btn-primary float-right" href="{{ url_for('index', page=posts.next_num) }}">下一页 &rarr;</a>
+                 <a class="tn btn-primary float-right" href="#row2" onclick="next()">下一页 &rarr;</a>
                 {% else %}
                     <a class="float-right" href="#row2">没有更多..</a>
                 {% endif %}
@@ -150,7 +152,7 @@
     {% endif %}
 {% endblock %}
 {% block script %}
-  <script src="/static/js/index.js"></script>
+  <script src="/static/js/index.min.js"></script>
 {% endblock %}
     
 

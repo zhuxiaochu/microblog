@@ -53,3 +53,5 @@ $(document).ready(function(){
 $('.popover-dismiss').popover({
   trigger: 'focus'
 })
+
+$('.blog-post table').wrap("<div class='table-responsive'></div>")
