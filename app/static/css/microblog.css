@@ -482,3 +482,8 @@ pre {
   background: #23241f;
 }
 
+.blog-post > div  img {
+  max-width: 100%;
+  height: auto !important;
+}
+
