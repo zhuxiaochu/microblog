@@ -11,7 +11,7 @@
             <p class="post-meta">
                 Posted by
               <a href="#">{{ post.author.username }}</a>
-              on {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
+              on {{ post.time }}
             </p>
             <p>
                 <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
@@ -27,7 +27,7 @@
         </div>
     </div>
     <div class="col-xs-3 col-md-6 col-lg-6 text-right">
-        {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
+        <span class="time">{{ post.time }}</span>
     </div>
 </div>
 <div class="row">
@@ -65,31 +65,3 @@
         </a>
     </div>
 </div>
-<!--div class="row">
-    <div class="col-xs-12 col-md-6 col-md-offset=3">
-        <article class="post">
-            <div class="post username">
-                {{ post.author.username }}
-            </div>
-            <div>
-                {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
-            </div>
-            <div>
-                <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
-                    <input class="btn button" type="submit" value="删除" >
-                </form>
-            </div>
-        </article>
-        <article>
-            <div class="post title">
-                标题：
-            </div>
-            <div>
-                {{ post.title }}
-            </div>
-            <div>
-                <a class="btn button" href="{{ url_for('editpost',post_id = post.id) }}" type="submit" value="编辑">编辑</a>
-            </div>
-        </article>
-    </div>
-</div -->

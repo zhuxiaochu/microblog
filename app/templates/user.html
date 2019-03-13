@@ -29,7 +29,7 @@
                 <th>上次访问时间：</th>
             <td>
                 {% if user.last_seen %}
-                    <em>{{ moment(user.last_seen).format('YYYY-MM-DD, HH:mm:ss') }}</em>
+                    <em><span class="time">{{ user.last_seen }}<span></span></em>
                 {% endif %}
             </td>
         </tr>    

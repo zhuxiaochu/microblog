@@ -24,13 +24,13 @@
           <div class="msgboard" id="comment{{ loop.index }}">
           <div class="msgban">
             <span class="user_id" hidden="">{{ msg.id }}</span>
-            <a href="#row2">第{{ loop.index }}楼|</a>
+            <a href="#row2">第{{ loop.index }}楼&brvbar;</a>
             {% if msg.user_id == 1 %}
-            <span class="role">[站长]</span>
+            <span class="role">[站长]&brvbar;</span>
             {% endif %}
-            <span class="leave_time">{{ moment(msg.leave_time).format('YYYY-MM-DD, HH:mm:ss') }}|</span>
+            <span class="leave_time">{{ msg.leave_time }}</span>
             {% if msg.user_id %}
-            <a href="#">{{ msg.author.username }}</a>
+            <a href="#">&brvbar;&nbsp;{{ msg.author.username }}</a>
             {% else %}
             <a href="#" class="role">匿名</a>
             {% endif %}

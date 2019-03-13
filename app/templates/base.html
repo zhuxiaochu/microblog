@@ -137,7 +137,7 @@
     <!-- Bootstrap core JavaScript -->
     <script src="/static/vendor/jquery/jquery.min.js"></script>
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    {{ moment.include_moment(local_js='/static/js/moment-with-locales.min.js') }}
+    <script type="text/javascript" src="/static/js/dayjs.min.js"></script>
     <!-- Custom scripts for this template -->
     <script src="/static/js/microblog.min.js"></script>
     {% block script %}{% endblock %}

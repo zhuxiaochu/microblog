@@ -23,14 +23,16 @@
           <div class="blog-post">
             <h2 class="blog-post-title">{{ post.title }}</h2>
             <p class="blog-post-meta">
-              {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
+              <span class="time">
+              {{ post.time }}
+              </span>
               <a href="#">{{ post.author.username }}</a>
             </p>
             <div>
               {{ post.content|safe }}
             </div>
           </div><!-- /.blog-post -->
-
+          <br>
           <nav>
             <ul class="pager">
               <a class="float-left" href="#">Previous</a>

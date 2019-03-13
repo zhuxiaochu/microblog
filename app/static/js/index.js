@@ -44,7 +44,7 @@ $(".category a").click(function(){
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta a').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(moment($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
         };
     },
     error: function(msg) {
@@ -96,7 +96,7 @@ function next() {
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta a').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(moment($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
         };
     }
   });
@@ -145,7 +145,7 @@ function prev() {
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta a').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(moment($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
         };
     }
   });
