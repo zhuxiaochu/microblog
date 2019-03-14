@@ -18,6 +18,6 @@ some other matters you maybe need to know if you are not familiar with flask web
   ...  
   
   
-[The blog](www.zhuchuzjut.com):smile:
+[The blog](https://www.zhuchuzjut.com):smile:
   
   
