@@ -1,5 +1,6 @@
 import os 
 import logging
+import flask_whooshalchemyplus
 
 from logging.handlers import SMTPHandler
 from logging.handlers import RotatingFileHandler
@@ -89,3 +90,5 @@ scheduler.start()
 
 
 from app import routes,models
+
+flask_whooshalchemyplus.init_app(app)

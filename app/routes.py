@@ -523,7 +523,6 @@ def choose_cate():
 def search():
     keys = request.args.get('s')
     results = Post.query.whoosh_search(keys).all()
-    print(Post.query.filter_by(title='whoosh').all())
     return render_template('search.html', results=results)
 
 
