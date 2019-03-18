@@ -1,8 +1,15 @@
 {% extends "base.html" %}
-
+{% block stylesheet %}
+<style>
+    .nav-link,
+    .navbar-brand {
+        color: black !important;
+    }
+</style>
+{% endblock %}
 {% block content %}
-  <div class="container">
-    <div class="row move-down">
+  <div class="container move-down">
+    <div class="row">
        <h2>编辑个人信息</h2>
        <form action="" method="POST">
            {{ form.hidden_tag() }}

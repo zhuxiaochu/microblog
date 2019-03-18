@@ -51,4 +51,5 @@ class Config(object):
     #flask-wtf
     WTF_CSRF_TIME_LIMIT = 28800 #eight hours,means that you shouldn't \
                                 #write an article for more than eight hours
-    POST_PER_PAGE = 15
+    POST_PER_PAGE = 15  #articel num in index.html
+    SQLALCHEMY_TRACK_MODIFICATIONS = True

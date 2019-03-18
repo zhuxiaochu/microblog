@@ -12,8 +12,8 @@
 <div class="container">
 
       <div class="blog-header">
-        <h1 class="blog-title">post.classification</h1>
-        <p class="lead blog-description">post.description</p>
+        <h1 class="blog-title"></h1>
+        <p class="lead blog-description"></p>
       </div>
       <hr>
       <div class="row">
@@ -23,16 +23,26 @@
           <div class="blog-post">
             <h2 class="blog-post-title">{{ post.title }}</h2>
             <p class="blog-post-meta">
+              <i class="fa fa-clock-o"></i>
               <span class="time">
               {{ post.time }}
               </span>
+              <i class="fa fa-user-secret"></i>
               <a href="#">{{ post.author.username }}</a>
             </p>
             <div>
               {{ post.content|safe }}
             </div>
           </div><!-- /.blog-post -->
-          
+          <div class="info">
+            <div>
+              <li class="fa fa-edit"></li>last-modified:
+              <span class="time last-modify">{{ post.last_modify }}</span>
+            {% if user.id %}
+              <a href="{{ url_for('editpost', post_id=post.id)}}">编辑</a>
+            {% endif %}
+            </div>
+          </div>
           <hr>
           <nav>
             <ul class="pager">

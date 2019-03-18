@@ -5,7 +5,11 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
+    {% if title %}
+    <meta name="description" content="{{ title }}">
+    {% else %}
+    <meta name="description" content="python3,web development,informal essays">
+    {% endif %}
     <meta name="author" content="1956">
     {% if title %}
     <title> {{ title }} - 1956的博客</title>
@@ -74,11 +78,18 @@
               <a class="nav-link" href="{{ url_for('index') }}">首页</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('picture') }}" onclick="return False">照片</a>
+              <a class="nav-link" href="{{ url_for('picture') }}" onclick="alert('making')">照片</a>
             </li>
 
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('contact') }}">联系</a>
+            </li>
+            <li class="nav-item">
+              <form class="form-inline my-2 my-lg-0" action="/search">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name='s' id="searchbar">
+                <button class="btn search" type="submit">搜索</button>
+              </form>
+               <a class="nav-link"><i class="fa fa-search" aria-hidden="true" id="searchbtn"></i></a>
             </li>
           </ul>
         </div>
@@ -133,13 +144,13 @@
         </div>
       </div>
     </footer>
-
+    
     <!-- Bootstrap core JavaScript -->
     <script src="/static/vendor/jquery/jquery.min.js"></script>
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="/static/js/dayjs.min.js"></script>
     <!-- Custom scripts for this template -->
-    <script src="/static/js/microblog.js"></script>
+    <script src="/static/js/microblog.min.js"></script>
     {% block script %}{% endblock %}
   </body>
 </html>

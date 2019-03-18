@@ -10,7 +10,7 @@ from app.models import (Post, User, RegistCode, UploadImage, LeaveMessage,
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
     EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, LeaveMsgForm,
     AddCat)
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
 from flask_ckeditor import upload_success, upload_fail
@@ -57,7 +57,7 @@ def index(page=1):
         posts = None
     cats = PostCat.query.all()
     return render_template('index.html', user=user, posts=posts,
-                          cats=cats, page=page)
+                          cats=cats, page=page, new=user.about_me)
 
 
 @app.route('/login',methods=['GET','POST'])
@@ -256,7 +256,8 @@ def user(username, page=1):
 @cache.cached(timeout=240)
 def article_detail(username, post_id):
     post = Post.query.filter_by(id=post_id).first_or_404()
-    return render_template('detail.html', title='全文内容', post=post)
+    return render_template('detail.html', title=post.title, post=post,
+        user=current_user)
 
 
 #making
@@ -307,7 +308,7 @@ def change(post_id):
             for img in delete_img:
                 try:
                     f_path = os.path.join(app.config['UPLOADED_PATH'],
-                        current_user.id,
+                        str(current_user.id),
                         os.path.basename(img))
                     os.remove(f_path)
                     db_image = UploadImage.query.filter_by(
@@ -335,6 +336,7 @@ def change(post_id):
         post.title = form.title.data
         post.content = form.content.data
         post.cat_id = form.cat.data
+        post.last_modify = datetime.utcnow()
         db.session.add(post)
         db.session.commit()
         cache.clear()
@@ -343,7 +345,7 @@ def change(post_id):
     else:
         flash('修改异常！')
         app.logger.error(form.errors)
-    return redirect(url_for('editpost', form=form, post_id=post.id))
+    return redirect(url_for('editpost', form=form, post_id=post.id)), 301
 
 
 @app.route('/write',methods=['GET','POST'])
@@ -377,7 +379,7 @@ def write():
         flash('提交成功!')
         if current_user.id == 1:
             cache.clear()
-        return redirect(url_for('user', username=current_user.username))
+        return redirect(url_for('user', username=current_user.username)), 301
     return render_template('write.html', title='写作ing',form=form)
 
 
@@ -469,7 +471,7 @@ def add_cat():
                 app.logger.error('database errror when add new cat')
         else:
             flash('类别已存在!')
-    return render_template('control.html', cat=cat)
+    return redirect('control'), 301
 
 
 @app.route('/category/del', methods=['POST'])
@@ -515,6 +517,14 @@ def choose_cate():
             db.desc(Post.time)).paginate(
             page, app.config['POST_PER_PAGE'], False)
     return render_template('category.xml', posts=posts)
+
+
+@app.route('/search')
+def search():
+    keys = request.args.get('s')
+    results = Post.query.whoosh_search(keys).all()
+    print(Post.query.filter_by(title='whoosh').all())
+    return render_template('search.html', results=results)
 
 
 #error pages

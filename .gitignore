@@ -14,3 +14,7 @@ test*
 /venv
 /app/__pycache__/
 __pycache__
+/whoosh_index/
+#regular incompatibility across database
+/migrations/versions/
+/migrations/__pycache__/

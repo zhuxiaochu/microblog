@@ -31,6 +31,7 @@
           }
         } else if (currentTop > this.previousTop) {
           //if scrolling down...
+          $("#searchbtn").fadeIn();
           $('#mainNav').removeClass('is-visible');
           if (currentTop > headerHeight && !$('#mainNav').hasClass('is-fixed')) $('#mainNav').addClass('is-fixed');
         }
@@ -61,3 +62,30 @@ $(".time,.leave_time").each(function(i, obj) {
   var time = $(this).text() + 'z'
   $(this).text(dayjs(time).format('YYYY-MM-DD, HH:mm:ss'))
 });
+
+
+// Hides the scroll up button at top.
+$(window).scroll(function() {
+
+    if ($(this).scrollTop()>0)
+     {
+        $('.scroll-top').fadeIn();
+     }
+    else
+     {
+      $('.scroll-top').fadeOut();
+     }
+     if ($(this).scrollTop() === 0) {
+      $("#searchbtn").fadeIn();
+     }
+     if ($(this).scrollTop() > 20) {
+        $(".form-inline").fadeOut();
+
+     }
+ });
+
+$(".form-inline").hide();
+$("#searchbtn").click(function() {
+  $(".form-inline").fadeIn();
+  $(this).hide()
+})

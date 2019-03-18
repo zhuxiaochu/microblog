@@ -73,7 +73,7 @@ class SignUpForm(Form):
 class EditProfileForm(Form):
     """docstring for EditProfileForm"""
     username = StringField('用户名', validators=[DataRequired()])        
-    about_me = TextAreaField('个人简介', validators=[Length(min=0,max=140)])
+    about_me = TextAreaField('个人简介', validators=[Length(min=0,max=130)])
     submit = SubmitField('保存')
 
     def __init__(self, original_username, *args, **kwargs):

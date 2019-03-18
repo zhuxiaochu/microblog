@@ -82,6 +82,7 @@ if not app.debug:
 mail = Mail(app)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
+
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()

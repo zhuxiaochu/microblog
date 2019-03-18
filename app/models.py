@@ -1,5 +1,6 @@
 import jwt 
 import secrets
+import flask_whooshalchemyplus
 from app import db
 from app import login
 from app import app
@@ -106,10 +107,13 @@ class User(UserMixin,db.Model):
 
 #create articles
 class Post(db.Model):
+	__searchable__ = ['title', 'content']
+
 	id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.String(128))
 	content = db.Column(db.String(20000))                                    #autoincrease
 	time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
+	last_modify = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	cat_id = db.Column(db.Integer, db.ForeignKey('post_cat.id'))
 	tags = db.relationship('PostTag',
@@ -117,7 +121,7 @@ class Post(db.Model):
 		backref=db.backref('posts', lazy='dynamic'), lazy='dynamic')
 
 	def __repr__(self):
-		return '<Post %r>' % (self.title)
+		return '<Post {0}>'.format(self.title)
 
 
 #verification code
@@ -203,3 +207,4 @@ class PostTag(db.Model):
 	def __repr__(self):
 		return '<PostTag %r>' % (self.name)
 
+flask_whooshalchemyplus.init_app(app)
