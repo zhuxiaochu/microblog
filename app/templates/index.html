@@ -72,7 +72,7 @@
                   &nbsp;&nbsp;&nbsp;&nbsp;{{ post.content|truncate(200, True)|striptags }}
                 </p>
                 <p class="post-meta">Posted by
-                <a href="#row2">{{ post.author.username }}</a>
+                <a href="#row2" class="author">{{ post.author.username }}</a>
                 on <span class="time">{{ post.time }}</span>
                 <span class="cate">{{ post.cat.name }}</span>
                 <a href="#"><i class="fa fa-comments-o"></i></a>
