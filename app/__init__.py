@@ -18,7 +18,7 @@ from flask_limiter.util import get_remote_address
 from flask_apscheduler import APScheduler
 from flask_caching import Cache
 from flask_talisman import Talisman
-from redis import Redis
+from flask_redis import Redis
 
 
 app = Flask(__name__)

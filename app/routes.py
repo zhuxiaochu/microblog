@@ -522,10 +522,15 @@ def choose_cate():
 @app.route('/search')
 def search():
     keys = request.args.get('s')
-    results = Use_Redis.get('keys', disable=flag)
+    if keys:
+        results = Use_Redis.get('keys', disable=flag)
+    else:
+        results = None
     if not results:
         results = Post.query.whoosh_search(keys).all()
-        Use_Redis.set(keys, results, disable=flag)
+        Use_Redis.set(keys, str(results), disable=flag)
+    else:
+        results = eval(results)
     return render_template('search.html', results=results)
 
 

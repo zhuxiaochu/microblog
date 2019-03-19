@@ -213,7 +213,7 @@ class Use_Redis(object):
 	def set(cls, *args, disable=False):
 		if not disable:
 			*keys, value = args
-			if not key:
+			if not keys:
 				raise TypeError('need at least two arguments')
 			key = '_'.join(*keys)
 			return redis1.set(key, value)

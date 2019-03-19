@@ -56,7 +56,7 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     #redis
     REDIS_HOST = os.environ.get('REDIS_HOST') or 'localhost'
-    REDIS_POST = os.environ.get('REDIS_POST') or '6379'
+    REDIS_PORT = os.environ.get('REDIS_PORT') or 6379
     REDIS_DB = os.environ.get('REDIS_DB') or 0
     REDIS_DISABLE = os.environ.get('REDIS_DISABLE') is not None
 
