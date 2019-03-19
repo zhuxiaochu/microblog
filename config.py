@@ -52,4 +52,12 @@ class Config(object):
     WTF_CSRF_TIME_LIMIT = 28800 #eight hours,means that you shouldn't \
                                 #write an article for more than eight hours
     POST_PER_PAGE = 15  #articel num in index.html
+    #flask-whooshsqlalchemyplus
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    #redis
+    REDIS_HOST = os.environ.get('REDIS_HOST') or 'localhost'
+    REDIS_POST = os.environ.get('REDIS_POST') or '6379'
+    REDIS_DB = os.environ.get('REDIS_DB') or 0
+    REDIS_DISABLE = os.environ.get('REDIS_DISABLE') is not None
+
+

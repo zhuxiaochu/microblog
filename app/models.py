@@ -1,8 +1,7 @@
 import jwt 
 import secrets
 import flask_whooshalchemyplus
-from app import db
-from app import login
+from app import db, redis1, login
 from app import app
 from datetime import datetime
 from time import time
@@ -205,6 +204,29 @@ class PostTag(db.Model):
 	name = db.Column(db.String(12))
 
 	def __repr__(self):
-		return '<PostTag %r>' % (self.name)
+		return '<PostTag {0}>'.format(self.name)
 
-flask_whooshalchemyplus.init_app(app)
+
+class Use_Redis(object):
+
+	@classmethod
+	def set(cls, *args, disable=False):
+		if not disable:
+			*keys, value = args
+			if not key:
+				raise TypeError('need at least two arguments')
+			key = '_'.join(*keys)
+			return redis1.set(key, value)
+		else:
+			return 
+
+	@classmethod
+	def get(cls, *args, disable=False):
+		if not disable:
+			key = '_'.join(*args)
+			return redis1.get(key)
+		else:
+			return 
+
+	def __repr__(self):
+		return '<redis_custom_tool>'

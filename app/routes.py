@@ -6,7 +6,7 @@ from flask import (render_template, flash, url_for, session, redirect, request,
 from app import app, db, login, limiter, csrf, cache
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import (Post, User, RegistCode, UploadImage, LeaveMessage,
-    PostCat)
+    PostCat, Use_Redis)
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
     EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, LeaveMsgForm,
     AddCat)
@@ -17,7 +17,7 @@ from flask_ckeditor import upload_success, upload_fail
 from werkzeug.contrib.fixers import ProxyFix
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
-
+flag = app.config['REDIS_DISABLE']
 
 @login.user_loader
 def load_user(user_id):
@@ -522,7 +522,10 @@ def choose_cate():
 @app.route('/search')
 def search():
     keys = request.args.get('s')
-    results = Post.query.whoosh_search(keys).all()
+    results = Use_Redis.get('keys', disable=flag)
+    if not results:
+        results = Post.query.whoosh_search(keys).all()
+        Use_Redis.set(keys, results, disable=flag)
     return render_template('search.html', results=results)
 
 

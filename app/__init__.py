@@ -18,6 +18,7 @@ from flask_limiter.util import get_remote_address
 from flask_apscheduler import APScheduler
 from flask_caching import Cache
 from flask_talisman import Talisman
+from redis import Redis
 
 
 app = Flask(__name__)
@@ -83,6 +84,7 @@ if not app.debug:
 mail = Mail(app)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
+redis1 = Redis(app)
 
 scheduler = APScheduler()
 scheduler.init_app(app)
@@ -91,4 +93,4 @@ scheduler.start()
 
 from app import routes,models
 
-flask_whooshalchemyplus.init_app(app)
+flask_whooshalchemyplus.init_app(app)  #strange use
