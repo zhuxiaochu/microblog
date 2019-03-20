@@ -44,7 +44,7 @@ class Config(object):
     ]
     SCHEDULER_API_ENABLED = True
     SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE')\
-        is None
+        is not None
     #flask-login
     REMEMBER_COOKIE_SECURE = True
     REMEMBER_COOKIE_HTTPONLY = True

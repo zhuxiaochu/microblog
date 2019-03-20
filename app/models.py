@@ -223,7 +223,7 @@ class Use_Redis(object):
 	@classmethod
 	def get(cls, *args, disable=False):
 		if not disable:
-			key = '_'.join(*args)
+			key = '_'.join(args)
 			return redis1.get(key)
 		else:
 			return 

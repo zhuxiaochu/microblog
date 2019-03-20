@@ -253,9 +253,17 @@ def user(username, page=1):
 
 #can just see the content
 @app.route('/<username>/articles/<post_id>')
-@cache.cached(timeout=240)
+#@cache.cached(timeout=240)
 def article_detail(username, post_id):
-    post = Post.query.filter_by(id=post_id).first_or_404()
+    post = Use_Redis.get('article', post_id)
+    if post:
+        a = time()
+        post = Post.query.filter_by(id=post_id).first_or_404()
+        b = time()
+        print(b-a)
+        Use_Redis.set('article', post_id, str(post))
+    else:
+        post = eval(post)
     return render_template('detail.html', title=post.title, post=post,
         user=current_user)
 
