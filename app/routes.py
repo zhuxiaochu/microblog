@@ -211,6 +211,7 @@ def edit_profile():
             flash('服务存在异常！请稍后再试。')
             return redirect(url_for('edit_profile'))
         flash('修改成功。')
+        Use_Redis.eval('index', '*', disable=flag)
         return redirect(url_for('user', username=current_user.username))
     elif request.method == 'GET':
         form.username.data = current_user.username
@@ -349,7 +350,8 @@ def change(post_id):
         post.last_modify = datetime.utcnow()
         db.session.add(post)
         db.session.commit()
-        Use_Redis.delete('article', post_id, '*', disable=flag)
+        Use_Redis.eval('article', post_id, '*', disable=flag)
+        Use_Redis.eval('index', '*', disable=flag)
         Use_Redis.eval('cat', str(post.cat_id), '*', disable=flag)
         Use_Redis.eval('cat', str(form.cat.data), '*', disable=flag)
         flash('你的修改已经保存.')
@@ -385,12 +387,12 @@ def write():
                     db_image.mark = 1
             try:
                 db.session.commit()
-                Use_Redis.eval('index', '*', disable=flag)
-                Use_Redis.eval('cat', form.cat.data, '*', disable=flag)
-                Use_Redis.eval('search', '*')
             except:
                 flash('服务异常')
                 return render_template('write.html', title='写作ing',form=form)
+        Use_Redis.eval('index', '*', disable=flag)
+        Use_Redis.eval('cat', str(form.cat.data), '*', disable=flag)
+        Use_Redis.eval('srh', '*', disable=flag)
         flash('提交成功!')
         if current_user.id == 1:
             return redirect(url_for('user', username=current_user.username)), 301
@@ -539,14 +541,14 @@ def choose_cate():
 def search():
     keys = request.args.get('s')
     if keys:
-        html = Use_Redis.get('search', str(current_user.get_id() or '0'),
+        html = Use_Redis.get('srh', keys, str(current_user.get_id() or '0'),
             disable=flag)
     else:
         html = None
     if not html:
         results = Post.query.whoosh_search(keys).all()
         html = render_template('search.html', results=results)
-        Use_Redis.set(keys, str(current_user.get_id() or '0'),
+        Use_Redis.set('srh', keys, str(current_user.get_id() or '0'),
             html, disable=flag)
     return html
 

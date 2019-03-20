@@ -240,10 +240,10 @@ class Use_Redis(object):
 	def eval(cls, *args, disable=False):
 		regex = '_'.join(args)
 		if not disable:
-			return redis1.eval(redis1.eval(
+			return redis1.eval(
 				"local keys = redis.call('keys', ARGV[1]) \n for i=1,#keys,\
 				5000 do \n redis.call('del', unpack(keys, i, math.min(\
-				i+4999, #keys))) \n end \n return keys", 0, regex))
+				i+4999, #keys))) \n end \n return keys", 0, regex)
 
 	def __repr__(self):
 		return '<redis_custom_tool>'
