@@ -215,7 +215,7 @@ class Use_Redis(object):
 			*keys, value = args
 			if not keys:
 				raise TypeError('need at least two arguments')
-			key = '_'.join(*keys)
+			key = '_'.join(keys)
 			return redis1.set(key, value)
 		else:
 			return 

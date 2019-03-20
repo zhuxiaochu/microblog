@@ -255,17 +255,13 @@ def user(username, page=1):
 @app.route('/<username>/articles/<post_id>')
 #@cache.cached(timeout=240)
 def article_detail(username, post_id):
-    post = Use_Redis.get('article', post_id)
-    if post:
-        a = time()
+    html = Use_Redis.get('article', post_id, disable=flag)
+    if not html:
         post = Post.query.filter_by(id=post_id).first_or_404()
-        b = time()
-        print(b-a)
-        Use_Redis.set('article', post_id, str(post))
-    else:
-        post = eval(post)
-    return render_template('detail.html', title=post.title, post=post,
-        user=current_user)
+        html = render_template('detail.html', title=post.title, post=post,
+            user=current_user)
+        Use_Redis.set('article', post_id, html, disable=flag)
+    return html
 
 
 #making
@@ -531,15 +527,14 @@ def choose_cate():
 def search():
     keys = request.args.get('s')
     if keys:
-        results = Use_Redis.get('keys', disable=flag)
+        html = Use_Redis.get('keys', disable=flag)
     else:
-        results = None
-    if not results:
+        html = None
+    if not html:
         results = Post.query.whoosh_search(keys).all()
-        Use_Redis.set(keys, str(results), disable=flag)
-    else:
-        results = eval(results)
-    return render_template('search.html', results=results)
+        html = render_template('search.html', results=results)
+        Use_Redis.set(keys, html, disable=flag)
+    return html
 
 
 #error pages
