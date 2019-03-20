@@ -593,7 +593,7 @@ pre {
 
 @media all and (max-width: 900px) {
   #popUp {
-    margin-left: -425px;
+    margin-left: -425px !important;
   }
   #plus {
     margin-left: 0px;
@@ -604,7 +604,9 @@ pre {
   #plus {
     bottom: 35%;
   }
-
+  #popUp {
+    margin-left: -425px !important;
+  }
   #plus::after {
   content: '';
   display: block;
@@ -618,7 +620,11 @@ pre {
   }
 }
 
+h2 p {
+  margin: 1px 1px;
+  font-size: 1em;
 }
+
 
 /*detail*/
 .info {

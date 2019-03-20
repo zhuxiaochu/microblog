@@ -7,7 +7,7 @@
               <div id="close" class="close"><i class="fa fa-times"></i></div>
               <div id="new"><span>NEW!</span></div>
               {% if new %}
-              <h2>{{ new }}</h2>
+              <h2>{{ new|safe }}</h2>
               {% else %}
               <h2>A tranquil day.^_^</h2>
               {% endif %}

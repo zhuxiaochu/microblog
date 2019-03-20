@@ -19,7 +19,7 @@
             <tr>
                 <th>个人介绍：</th>
                 <td>
-                    {% if user.about_me %}<p>{{user.about_me}}</p>{% endif %}
+                    {% if user.about_me %}<p>{{user.about_me|safe}}</p>{% endif %}
                 </td>
                 <td>
                     <span>{% include "flash.html" %}</span>

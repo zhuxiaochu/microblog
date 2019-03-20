@@ -1,9 +1,10 @@
 import os
 from time import time
+from threading import Thread
 from bs4 import BeautifulSoup
 from flask import (render_template, flash, url_for, session, redirect, request,
     abort, send_from_directory, jsonify)
-from app import app, db, login, limiter, csrf, cache
+from app import app, db, login, limiter, csrf
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import (Post, User, RegistCode, UploadImage, LeaveMessage,
     PostCat, Use_Redis)
@@ -44,20 +45,25 @@ def add_header(response):
 
 @app.route('/')
 @app.route('/index')
-@app.route('/index/<int:page>')
 def index(page=1):
+    html = Use_Redis.get('index', str(current_user.get_id() or '0'),
+        disable=flag)
+    if html:
+        return html
     user = User.query.filter_by(role=1,
         username=app.config['DATABASE_ADMIN']).first()
     if user:
         posts = user.posts.order_by(db.desc(Post.time)).paginate(
             page, app.config['POST_PER_PAGE'], False)
-        if posts.pages < page and page > 1:
-            abort(404)
+
     else:
         posts = None
     cats = PostCat.query.all()
-    return render_template('index.html', user=user, posts=posts,
+    html = render_template('index.html', user=user, posts=posts,
                           cats=cats, page=page, new=user.about_me)
+    Use_Redis.set('index', str(current_user.get_id() or '0'), html,
+            disable=flag)
+    return html
 
 
 @app.route('/login',methods=['GET','POST'])
@@ -70,7 +76,6 @@ def login():
                 login_user(user,remember=True,duration=timedelta(seconds=600))
             else:
                 login_user(user)
-            cache.clear()
             #user.last_seen = datetime.utcnow()
 			
             next_page = request.args.get('next')
@@ -129,7 +134,6 @@ def reset_password(token):
 @app.route('/logout')
 @login_required
 def logout():
-    cache.clear()
     logout_user()
     return redirect(url_for('index'))
 
@@ -171,7 +175,7 @@ def contact(page=1):
     if form.validate_on_submit():
         msg = LeaveMessage(name=form.name.data, content=form.content.data,
             email=form.email.data, user_id=
-                current_user.id if current_user.is_authenticated else None)
+                current_user.get_id())
         try:
             db.session.add(msg)
             db.session.commit()
@@ -253,14 +257,15 @@ def user(username, page=1):
 
 #can just see the content
 @app.route('/<username>/articles/<post_id>')
-#@cache.cached(timeout=240)
 def article_detail(username, post_id):
-    html = Use_Redis.get('article', post_id, disable=flag)
+    html = Use_Redis.get('article', post_id,
+        str(current_user.get_id() or '0'), disable=flag)
     if not html:
         post = Post.query.filter_by(id=post_id).first_or_404()
         html = render_template('detail.html', title=post.title, post=post,
             user=current_user)
-        Use_Redis.set('article', post_id, html, disable=flag)
+        Use_Redis.set('article', post_id,
+            str(current_user.get_id() or '0'), html, disable=flag)
     return html
 
 
@@ -279,6 +284,8 @@ def delete(post_id):
     db.session.delete(post)
     db.session.commit()
     flash("删除成功!")
+    Use_Redis.eval('index', '*', disable=flag)
+    Use_Redis.eval('article', post_id, '*', disable=flag)
     return redirect(url_for('user',username=current_user.username))
 
 
@@ -294,6 +301,37 @@ def editpost(post_id):
     form.cat.data = post.cat_id
     return render_template('editpost.html', form=form, post_id=post.id)
 
+def del_image(post, form, user_id):
+    with app.app_context():
+        soup_post = BeautifulSoup(post.content, 'lxml')
+        soup_form = BeautifulSoup(form.content.data, 'lxml')
+        img_post = {img['src'] for img in soup_post.find_all('img')}
+        img_form = {img['src'] for img in soup_form.find_all('img')}
+        delete_img = img_post - img_form
+        if delete_img:
+            for img in delete_img:
+                if not img.startswith('http'):
+                    try:
+                        f_path = os.path.join(app.config['UPLOADED_PATH'],
+                            str(user_id),
+                            os.path.basename(img))
+                        os.remove(f_path)
+                    except:
+                        app.logger.warning('delete error')
+        if img_post:
+            for img in img_post:
+                f_fullname = os.path.basename(img)
+                f_path = os.path.join(
+                    app.config['UPLOADED_PATH'],
+                    str(user_id), f_fullname)
+                db_image = UploadImage.query.filter_by(
+                    user_id=user_id, image_path=f_path).first()
+                if db_image:
+                    db_image.mark = 1
+            try:
+                db.session.commit()
+            except:
+                app.logger.error("could't mark images")
 
 @app.route('/change/<post_id>', methods=['POST'])
 @login_required
@@ -303,49 +341,19 @@ def change(post_id):
     if post.author.username != current_user.username:
         abort(404)
     if form.validate_on_submit():
-        soup_post = BeautifulSoup(post.content, 'lxml')
-        soup_form = BeautifulSoup(form.content.data, 'lxml')
-        img_post = {img['src'] for img in soup_post.find_all('img')}
-        img_form = {img['src'] for img in soup_form.find_all('img')}
-        delete_img = img_post - img_form
-        if delete_img:
-            for img in delete_img:
-                try:
-                    f_path = os.path.join(app.config['UPLOADED_PATH'],
-                        str(current_user.id),
-                        os.path.basename(img))
-                    os.remove(f_path)
-                    db_image = UploadImage.query.filter_by(
-                        user_id=current_user.id,
-                        image_path=f_path).first()
-                except:
-                    flash('异常')
-        if img_post:
-            for img in img_post:
-                f_fullname = os.path.basename(img)
-                f_path = os.path.join(
-                    app.config['UPLOADED_PATH'],
-                    str(current_user.id),
-                    f_fullname)
-                db_image = UploadImage.query.filter_by(
-                    user_id=current_user.id,
-                    image_path=f_path).first()
-                if db_image:
-                    db_image.mark = 1
-            try:
-                db.session.commit()
-            except:
-                flash('服务异常')
-                return redirect(url_for('editpost', form=form, post_id=post.id))
+        t = Thread(target=del_image, args=(post, form, current_user.id))
+        t.start()
         post.title = form.title.data
         post.content = form.content.data
         post.cat_id = form.cat.data
         post.last_modify = datetime.utcnow()
         db.session.add(post)
         db.session.commit()
-        cache.clear()
+        Use_Redis.delete('article', post_id, '*', disable=flag)
+        Use_Redis.eval('cat', str(post.cat_id), '*', disable=flag)
+        Use_Redis.eval('cat', str(form.cat.data), '*', disable=flag)
         flash('你的修改已经保存.')
-        return redirect(url_for('user', username=current_user.username))
+        return redirect(url_for('user', username=current_user.username)), 301
     else:
         flash('修改异常！')
         app.logger.error(form.errors)
@@ -377,13 +385,15 @@ def write():
                     db_image.mark = 1
             try:
                 db.session.commit()
+                Use_Redis.eval('index', '*', disable=flag)
+                Use_Redis.eval('cat', form.cat.data, '*', disable=flag)
+                Use_Redis.eval('search', '*')
             except:
                 flash('服务异常')
                 return render_template('write.html', title='写作ing',form=form)
         flash('提交成功!')
         if current_user.id == 1:
-            cache.clear()
-        return redirect(url_for('user', username=current_user.username)), 301
+            return redirect(url_for('user', username=current_user.username)), 301
     return render_template('write.html', title='写作ing',form=form)
 
 
@@ -471,6 +481,7 @@ def add_cat():
                 db.session.add(new_cat)
                 db.session.commit()
                 flash('类别增加成功')
+                Use_Redis.eval('index', '*', disable=flag)
             except:
                 app.logger.error('database errror when add new cat')
         else:
@@ -489,6 +500,8 @@ def del_cat():
                 db.session.delete(cat)
                 db.session.commit()
                 flash('成功删除')
+                Use_Redis.eval('index', '*', disable=flag)
+                Use_Redis.eval('cat', str(cat_id), '*', disable=flag)
             except:
                 app.logger.warning("can't delete {0}".format(cat.name))
     return redirect('control'), 301
@@ -502,38 +515,39 @@ def choose_cate():
     page = request.args.get('page','1')
     if len(cat_id) > 9 or len(page) > 9:
         abort(404)
-    try:
-        cat_id = int(cat_id)
-        page = int(page)
-    except ValueError:
-        app.logger.warning('Bad value for cat_id or page.')
+    if int(cat_id) < 0 or int(page) < 1:
         abort(404)
-    if cat_id < 0 or page < 1:
-        abort(404)
-    if cat_id is None:
-        posts = None
-    elif int(cat_id) == 0:
+    xml = Use_Redis.get('cat', cat_id, page, disable=flag)
+    if xml:
+        return xml
+    if int(cat_id) == 0:
         posts = Post.query.order_by(db.desc(Post.time)).paginate(
-            page, app.config['POST_PER_PAGE'], False)
+            int(page), app.config['POST_PER_PAGE'], False)
+        xml = render_template('category.xml', posts=posts)
+        Use_Redis.set('cat', cat_id, page, xml, disable=flag)
     else:
         posts = Post.query.filter_by(
             cat_id=int(cat_id)).order_by(
             db.desc(Post.time)).paginate(
-            page, app.config['POST_PER_PAGE'], False)
-    return render_template('category.xml', posts=posts)
+            int(page), app.config['POST_PER_PAGE'], False)
+        xml = render_template('category.xml', posts=posts)
+        Use_Redis.set('cat', cat_id, page, xml, disable=flag)
+    return xml
 
 
 @app.route('/search')
 def search():
     keys = request.args.get('s')
     if keys:
-        html = Use_Redis.get('keys', disable=flag)
+        html = Use_Redis.get('search', str(current_user.get_id() or '0'),
+            disable=flag)
     else:
         html = None
     if not html:
         results = Post.query.whoosh_search(keys).all()
         html = render_template('search.html', results=results)
-        Use_Redis.set(keys, html, disable=flag)
+        Use_Redis.set(keys, str(current_user.get_id() or '0'),
+            html, disable=flag)
     return html
 
 
