@@ -8,7 +8,7 @@ from flask import (render_template, flash, url_for, session, redirect, request,
 from app import app, db, login, limiter, csrf
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import (Post, User, RegistCode, UploadImage, LeaveMessage,
-    PostCat, Use_Redis)
+    PostCat, Use_Redis, Stats)
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
     EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, LeaveMsgForm,
     AddCat)
@@ -55,9 +55,13 @@ def index(page=1):
     user = User.query.filter_by(role=1,
         username=app.config['DATABASE_ADMIN']).first()
     if user:
+        total = Use_Redis.get('total', 'post', disable=flag)
+        if not total:
+            total = Stats.query.filter_by(name='post_count').first().value
+            Use_Redis.set('total', 'post', total, disable=flag)
         posts = Post.query.filter_by(user_id=user.id).order_by(
             Post.time.desc()).paginate(
-            page, app.config['POST_PER_PAGE'], False)
+            page, app.config['POST_PER_PAGE'], False, total_in=total)
     else:
         posts = None
     cats = PostCat.query.all()
@@ -251,8 +255,12 @@ def user(username, page=1):
         return redirect(url_for('login'))
     if username != current_user.username:
         abort(404)
+    total = Use_Redis.get('total', 'post', disable=flag)
+    if not total:
+        total = Stats.query.filter_by(name='post_count').first().value
+        Use_Redis.set('total', 'post', post, disable=flag)
     posts=Post.query.filter_by(user_id=current_user.id).order_by(
-        db.desc(Post.time)).paginate(page, 8, False)
+        db.desc(Post.time)).paginate(page, 8, False, total_in=total)
     if posts.pages < page and page > 1:
         abort(404)
     return render_template('user.html', user=current_user, posts=posts, page=page)
@@ -395,6 +403,7 @@ def write():
         Use_Redis.eval('index', '*', disable=flag)
         Use_Redis.eval('cat', str(form.cat.data), '*', disable=flag)
         Use_Redis.eval('srh', '*', disable=flag)
+        Use_Redis.delete('total', 'post', disable=flag)
         flash('提交成功!')
         if current_user.id == 1:
             return redirect(url_for('user', username=current_user.username)), 301
@@ -525,8 +534,12 @@ def choose_cate():
     if xml:
         return xml
     if int(cat_id) == 0:
+        total = Use_Redis.get('total', 'post', disable=flag)
+        if not total:
+            total = Stats.query.filter_by(name='post_count').first().value
+            Use_Redis.set('total', 'post', total, disable=flag)
         posts = Post.query.order_by(db.desc(Post.time)).paginate(
-            int(page), app.config['POST_PER_PAGE'], False)
+            int(page), app.config['POST_PER_PAGE'], False, total_in=total)
         xml = render_template('category.xml', posts=posts)
         Use_Redis.set('cat', cat_id, page, xml, disable=flag)
     else:

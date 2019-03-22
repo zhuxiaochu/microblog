@@ -122,6 +122,15 @@ class Post(db.Model):
 	def __repr__(self):
 		return '<Post {0}>'.format(self.title)
 
+post_trigger = db.DDL(
+	'''CREATE TRIGGER 'count_up' AFTER INSERT ON 'post' FOR EACH ROW UPDATE 'stats'
+SET 'stats'.'value' = 'stats'.'value' + 1 
+WHERE 'stats'.'name' = "post_count";
+CREATE TRIGGER 'count_down' AFTER DELETE ON 'post' FOR EACH ROW UPDATE 'stats'
+SET 'stats'.'value' = 'stats'.'value' - 1 
+WHERE 'stats'.'name' = 'post_count';''')
+db.event.listen(Post.__table__, 'after_create', post_trigger.execute_if(dialect='mysql'))
+
 
 #verification code
 #verify_code is not unique,usually it doesn't matter.
@@ -211,6 +220,7 @@ class Use_Redis(object):
 
 	@classmethod
 	def set(cls, *args, disable=False):
+		"""key=args join by '_'"""
 		if not disable:
 			*keys, value = args
 			if not keys:
@@ -247,3 +257,12 @@ class Use_Redis(object):
 
 	def __repr__(self):
 		return '<redis_custom_tool>'
+
+class Stats(db.Model):
+
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(24), index=True)
+	total = db.Column(db.Integer, default=0)
+
+	def __repr__(self):
+		return '<stats {0}'.format(self.name)
