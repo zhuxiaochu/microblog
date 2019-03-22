@@ -297,6 +297,7 @@ def delete(post_id):
     flash("删除成功!")
     Use_Redis.eval('index', '*', disable=flag)
     Use_Redis.eval('article', post_id, '*', disable=flag)
+    Use_Redis.delete('total', 'post', disable=flag)
     return redirect(url_for('user',username=current_user.username))
 
 
