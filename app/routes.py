@@ -53,7 +53,8 @@ def index(page=1):
     user = User.query.filter_by(role=1,
         username=app.config['DATABASE_ADMIN']).first()
     if user:
-        posts = user.posts.order_by(db.desc(Post.time)).paginate(
+        posts = Post.query.filter_by(user_id=user.id).order_by(
+            Post.time.desc()).paginate(
             page, app.config['POST_PER_PAGE'], False)
 
     else:
@@ -530,7 +531,7 @@ def choose_cate():
     else:
         posts = Post.query.filter_by(
             cat_id=int(cat_id)).order_by(
-            db.desc(Post.time)).paginate(
+            Post.time.desc()).paginate(
             int(page), app.config['POST_PER_PAGE'], False)
         xml = render_template('category.xml', posts=posts)
         Use_Redis.set('cat', cat_id, page, xml, disable=flag)
