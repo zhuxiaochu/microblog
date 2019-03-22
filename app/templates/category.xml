@@ -3,7 +3,7 @@
     {% if posts %}
     <info>
         <exp_num>{{ posts.per_page }}</exp_num>
-        <real_num>{{ posts.total }}</real_num>
+        <real_num>{{ posts.items|length }}</real_num>
         <next_num>{{ posts.next_num }}</next_num>
         <prev_num>{{ posts.prev_num }}</prev_num>
     </info>

@@ -14,9 +14,6 @@ $(".category a").click(function(){
         var real_num = Number($xml.find('real_num').text());
         var next_num = $xml.find('next_num').text();
         var prev_num = $xml.find('prev_num').text();
-        if (real_num > exp_num) {
-            real_num = exp_num
-        }
         if (next_num === 'None') {
             $("a.float-right").replaceWith(
                 '<a class="float-right" href="#row2" style="background-color: #e0dede;">没有更多..</a>');
@@ -68,14 +65,9 @@ function next() {
         xmlDoc = $.parseXML( msg ),
         $xml = $( xmlDoc );
         var exp_num = Number($xml.find('exp_num').text());
+        var real_num = Number($xml.find('real_num').text())
         var next_num = $xml.find('next_num').text();
         var prev_num = $xml.find('prev_num').text();
-        if (next_num != 'None') {
-            var real_num = exp_num
-        }
-        else{
-            var real_num = Number($xml.find('real_num').text()) - page*exp_num;
-        }
         $(".page").text(page + 1);
         for (var i = exp_num; i > real_num; i--) {
             $("#post" + i.toString()).hide();

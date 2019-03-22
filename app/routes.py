@@ -1,6 +1,7 @@
 import os
 from time import time
 from threading import Thread
+from flask_sqlalchemy import get_debug_queries
 from bs4 import BeautifulSoup
 from flask import (render_template, flash, url_for, session, redirect, request,
     abort, send_from_directory, jsonify)
@@ -40,8 +41,9 @@ def add_header(response):
     if 'Content-Type' in response.headers and\
           '/css' in response.content_type:
         response.cache_control.max_age = 2592000
+    for l in get_debug_queries():
+        print(l)
     return response
-
 
 @app.route('/')
 @app.route('/index')
@@ -56,7 +58,6 @@ def index(page=1):
         posts = Post.query.filter_by(user_id=user.id).order_by(
             Post.time.desc()).paginate(
             page, app.config['POST_PER_PAGE'], False)
-
     else:
         posts = None
     cats = PostCat.query.all()
