@@ -57,7 +57,7 @@ def index(page=1):
     if user:
         total = Use_Redis.get('total', 'post', disable=flag)
         if not total:
-            total = Stats.query.filter_by(name='post_count').first().value
+            total = Stats.query.filter_by(name='post_count').first().total
             Use_Redis.set('total', 'post', total, disable=flag)
         posts = Post.query.filter_by(user_id=user.id).order_by(
             Post.time.desc()).paginate(
@@ -257,7 +257,7 @@ def user(username, page=1):
         abort(404)
     total = Use_Redis.get('total', 'post', disable=flag)
     if not total:
-        total = Stats.query.filter_by(name='post_count').first().value
+        total = Stats.query.filter_by(name='post_count').first().total
         Use_Redis.set('total', 'post', post, disable=flag)
     posts=Post.query.filter_by(user_id=current_user.id).order_by(
         db.desc(Post.time)).paginate(page, 8, False, total_in=total)
@@ -537,7 +537,7 @@ def choose_cate():
     if int(cat_id) == 0:
         total = Use_Redis.get('total', 'post', disable=flag)
         if not total:
-            total = Stats.query.filter_by(name='post_count').first().value
+            total = Stats.query.filter_by(name='post_count').first().total
             Use_Redis.set('total', 'post', total, disable=flag)
         posts = Post.query.order_by(db.desc(Post.time)).paginate(
             int(page), app.config['POST_PER_PAGE'], False, total_in=total)

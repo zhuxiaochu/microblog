@@ -7,7 +7,8 @@ if not stats_post:
     db.session.add (post_count)
     db.session.commit()
 else:
-    stats_post.value = Post.query.count()
+    stats_post.total = Post.query.count()
+    db.session.commit()
 
 custom_triggers = ['count_up', 'count_down']#up must be first,down  be down
 if db.engine.dialect.name == 'mysql':
