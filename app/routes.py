@@ -363,6 +363,7 @@ def change(post_id):
     if form.validate_on_submit():
         t = Thread(target=del_image, args=(post, form, current_user.id))
         t.start()
+        origin_id = str(post.cat_id)
         post.title = form.title.data
         post.content = form.content.data
         post.cat_id = form.cat.data
@@ -372,7 +373,7 @@ def change(post_id):
         Use_Redis.eval('article', post_id, '*', disable=flag)
         Use_Redis.eval('index', '*', disable=flag)
         Use_Redis.eval('cat', '0', '*', disable=flag)
-        Use_Redis.eval('cat', str(post.cat_id), '*', disable=flag)
+        Use_Redis.eval('cat', origin_id, '*', disable=flag)
         Use_Redis.eval('cat', str(form.cat.data), '*', disable=flag)
         flash('你的修改已经保存.')
         return redirect(url_for('user', username=current_user.username)), 301

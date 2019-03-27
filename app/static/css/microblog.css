@@ -646,7 +646,7 @@ h2 p {
   height: auto !important;
 }
 
-*:before, *:after { content: ''; }
+hr:before, hr:after { content: ''; }
 .blog-post  hr {
   border: 0;
   margin: 0.15em auto;
