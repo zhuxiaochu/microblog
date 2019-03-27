@@ -78,7 +78,6 @@
               <div class="form-group floating-label-form-group controls">
                 <label>Name</label>
                 {{ form.name(class="form-control",placeholder="名字",id="name") }}
-                <!--input type="text" class="form-control" placeholder="Name" id="name" required data-validation-required-message="Please enter your name."-->
                 <p class="help-block text-danger"></p>
               </div>
             </div>
@@ -109,7 +108,7 @@
 {% block script %}
 {{ ckeditor.load(custom_url=url_for('static', filename='ckeditor/ckeditor.js')) }}
 {{ ckeditor.config(name='content',custom_config="
-            plugins: 'about,basicstyles,clipboard,toolbar,enterkey,entities,floatingspace,wysiwygarea,indentlist,link,list,undo,emoji,font,autogrow,mathjax',
+            plugins: 'about,basicstyles,clipboard,toolbar,enterkey,entities,floatingspace,wysiwygarea,indentlist,link,list,undo,emoji,font,autogrow,mathjax,indentblock,',
             extraPlugins: 'autogrow',
             autoGrow_minHeight: 200,
             autoGrow_maxHeight: 300,

@@ -22,18 +22,19 @@
 
           <div class="blog-post">
             <h2 class="blog-post-title">{{ post.title }}</h2>
-            <p class="blog-post-meta">
+            <div class="blog-post-meta">
               <i class="fa fa-clock-o"></i>
               <span class="time">
               {{ post.time }}
               </span>
               <i class="fa fa-user-secret"></i>
               <a href="#">{{ post.author.username }}</a>
-            </p>
+            </div>
             <div>
               {{ post.content|safe }}
             </div>
           </div><!-- /.blog-post -->
+          <hr>
           <div class="info">
             <div>
               <li class="fa fa-edit"></li>last-modified:
@@ -43,15 +44,56 @@
             {% endif %}
             </div>
           </div>
-          <hr>
-          <nav>
+          <nav class="blog-nav">
             <ul class="pager">
               <a class="float-left" href="#">Previous</a>
               <a class="float-right" href="#">Next</a>
             </ul>
           </nav>
-
+        <div class="clearfix"></div>
+        <div class="msg">
+        {% if msgs %}
+        <div class="col-lg-8 col-md-10 mx-auto msgbox">
+        {% for msg in msgs.items %}
+          <div class="msgboard" id="comment{{ loop.index }}">
+          <div class="msgban">
+            <span class="user_id" hidden="">{{ msg.id }}</span>
+            <a href="#row2">第{{ loop.index }}楼&brvbar;</a>
+            {% if msg.user_id == 1 %}
+            <span class="role">[站长]&brvbar;</span>
+            {% endif %}
+            <span class="leave_time">{{ msg.leave_time }}</span>
+            {% if msg.user_id %}
+            <a href="#">&brvbar;&nbsp;{{ msg.author.username }}</a>
+            {% else %}
+            <a href="#" class="role">匿名</a>
+            {% endif %}
+            {% if current_user.id == 1 %}
+            <a href="{{url_for('delete_msg', msg_id=msg.id)}}">删除</a>
+            {% endif %}
+            <br>
+          </div>
+          <div class="msgcontent">
+            <div class="content_div">{{ msg.content|safe }}</div>
+          </div>
+          </div>
+        {% endfor %}  
+        </div>
+        {% else %}
+          <div class="msgboard" id="comment1" hidden="">
+          <div class="msgban">
+            <span class="user_id" hidden="">1</span>
+            <a href="#row2">第1楼&brvbar;</a>
+            <span class="leave_time">2019-03-20, 12:57:32</span>
+            <a href="#">&brvbar;&nbsp;test</a>
+            <a href="#" class="role">匿名</a>
+            <a href="#">删除</a>
+        {% endif %}  
+          </div>
+          </div>
+        </div>
         </div><!-- /.blog-main -->
+        
 
         <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
           <div class="sidebar-module sidebar-module-inset">

@@ -60,4 +60,7 @@ class Config(object):
     REDIS_DB = os.environ.get('REDIS_DB') or 0
     REDIS_DISABLE = os.environ.get('REDIS_DISABLE') is not None
 
+    DEBUG_QUERY = os.environ.get('DEBUG_QUERY') is not None
+    PROFILER = os.environ.get('PROFILER') is None
 
+    TEST = os.environ.get('TEST') is None

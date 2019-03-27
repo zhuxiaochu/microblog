@@ -15,12 +15,12 @@ if db.engine.dialect.name == 'mysql':
     triggers = db.engine.execute('show triggers;').fetchall()
     for n in triggers:
         if n[0] in custom_triggers:
-            raise Exception("triggers existed {0}".format(n[0]))
-    db.engine.execute('''CREATE TRIGGER {0} AFTER INSERT ON 'post' FOR EACH ROW UPDATE 'stats'
-        SET 'stats'.'value' = 'stats'.'value' + 1 
-        WHERE 'stats'.'name' = "post_count";
+            raise Exception("triggers already exists {0}".format(n[0]))
+    db.engine.execute(('''CREATE TRIGGER {0} AFTER INSERT ON 'post' FOR EACH ROW UPDATE 'stats'
+        SET 'stats'.'total' = 'stats'.'total' + 1 
+        WHERE 'stats'.'name' = 'post_count';
         CREATE TRIGGER {1} AFTER DELETE ON 'post' FOR EACH ROW UPDATE 'stats'
-        SET 'stats'.'value' = 'stats'.'value' - 1 
+        SET 'stats'.'total' = 'stats'.'total' - 1 
         WHERE 'stats'.'name' = 'post_count';'''.format(custom_triggers[0],
-            custom_triggers[1]))
+            custom_triggers[1]).replace('\n', '')))
 

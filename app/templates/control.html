@@ -23,7 +23,7 @@
               {% endfor %}
               {% endif %}}
             </select>
-            <input type="button" value="删除" data-toggle="modal" data-target="#exampleModal"></button>
+            <input type="button" value="删除" data-toggle="modal" data-target="#exampleModal">
             <!--modal-->
             <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">
@@ -36,6 +36,43 @@
                   </div>
                   <div class="modal-body">
                     真的要删除吗？
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">确定</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <form class="form-horizontal" action="/category/replace" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <select class="custom-select custom-select-sm" name="origin_id">
+              <option value="">Open this select menu</option>
+              {% if cats %}
+              {% for cat in cats %}
+              <option value="{{ cat.id }}">{{ cat.name }}</option>
+              {% endfor %}
+              {% endif %}}
+            </select>
+            {% if rep %}
+            {{ rep.name() }}
+            {% endif %}
+            <input type="button" value="重命名" data-toggle="modal" data-target="#exampleModal2">
+            <!--modal-->
+            <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">重命名ing</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    确定？
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>

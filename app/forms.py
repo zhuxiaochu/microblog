@@ -154,3 +154,15 @@ class AddCat(Form):
     '''add a category'''
     name = StringField('category', validators=[DataRequired(),
         Length(max=12)])
+
+
+class RepCat(Form):
+    '''add a category'''
+    name = StringField('new', validators=[DataRequired(),
+        Length(max=12)])
+
+    def validate_name(self, name):
+        name = PostCat.query.filter_by(name=name.data).first()
+        if name:
+            raise ValidationError('cat already exists!')
+

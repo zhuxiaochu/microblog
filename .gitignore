@@ -18,3 +18,6 @@ __pycache__
 #regular incompatibility across database
 /migrations/versions/
 /migrations/__pycache__/
+#others
+app/static/img/beian.png
+profile/

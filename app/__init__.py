@@ -1,6 +1,7 @@
 import os 
 import logging
 import flask_whooshalchemyplus
+import smtplib
 
 from logging.handlers import SMTPHandler
 from logging.handlers import RotatingFileHandler
@@ -52,18 +53,38 @@ csp = {
 
 limiter = Limiter(app, key_func=get_remote_address)
 
-if not app.debug:
+class SSLSMTPHandler(SMTPHandler):
+    def emit(self, record):
+        """
+        Emit a record.
+        """
+        try:
+            port = self.mailport
+            if not port:
+                port = smtplib.SMTP_PORT
+            smtp = smtplib.SMTP_SSL(self.mailhost, port)
+            msg = self.format(record)
+            if self.username:
+                smtp.login(self.username, self.password)
+            smtp.sendmail(self.fromaddr, self.toaddrs, msg)
+            smtp.quit()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            self.handleError(record)
+
+if not app.debug and not app.config['TEST']:
     #send a email for errors
     if app.config['MAIL_SERVER']:
         auth = None
         if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
             auth = (app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
         secure = None
-        if app.config['MAIL_USE_TLS']:
+        if app.config['MAIL_USE_SSL']:
             secure = ()
-        mail_handler = SMTPHandler(
+        mail_handler = SSLSMTPHandler(
             mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-            fromaddr='no-reply@' + app.config['MAIL_SERVER'],
+            fromaddr=app.config['MAIL_USERNAME'],
             toaddrs=app.config['ADMINS'], subject='Microblog errors',
             credentials=auth, secure=secure)
         mail_handler.setLevel(logging.ERROR)

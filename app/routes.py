@@ -11,14 +11,21 @@ from app.models import (Post, User, RegistCode, UploadImage, LeaveMessage,
     PostCat, Use_Redis, Stats)
 from app.forms import (LoginForm, PostForm, SignUpForm, ChangeForm,
     EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, LeaveMsgForm,
-    AddCat)
+    AddCat, RepCat)
 from datetime import datetime, timedelta
 from werkzeug.urls import url_parse
 from app.email import send_password_reset_email, send_verify_code_email
 from flask_ckeditor import upload_success, upload_fail
 from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.contrib.profiler import ProfilerMiddleware
+
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
+if app.config['PROFILER']:
+    if not os.path.exists('profile'):
+        os.mkdir('profile')
+    app.wsgi_app = ProfilerMiddleware(app.wsgi_app, profile_dir='profile',
+        restrictions=[30])
 flag = app.config['REDIS_DISABLE']
 
 @login.user_loader
@@ -41,8 +48,9 @@ def add_header(response):
     if 'Content-Type' in response.headers and\
           '/css' in response.content_type:
         response.cache_control.max_age = 2592000
-    for l in get_debug_queries():
-        print(l)
+    if app.config['DEBUG_QUERY']:
+        for l in get_debug_queries():
+            print(l)
     return response
 
 @app.route('/')
@@ -59,6 +67,7 @@ def index(page=1):
         if not total:
             total = Stats.query.filter_by(name='post_count').first().total
             Use_Redis.set('total', 'post', total, disable=flag)
+        total = int(total)
         posts = Post.query.filter_by(user_id=user.id).order_by(
             Post.time.desc()).paginate(
             page, app.config['POST_PER_PAGE'], False, total_in=total)
@@ -85,12 +94,6 @@ def login():
             #user.last_seen = datetime.utcnow()
 			
             next_page = request.args.get('next')
-            try:
-                db.session.add(user)
-                db.session.commit()
-            except:
-                flash("服务存在异常！请稍后再试。")                      #"The Database error!"  没必要告诉用户太明确的错误原因
-                return redirect('/login')
             if not next_page or url_parse(next_page).netloc != '':
                 #flash('remember me? ' + str(request.form.get('remember_me')))
                 next_page = url_for('index')
@@ -188,6 +191,8 @@ def contact(page=1):
         except:
             app.logger.error('database error when leaving message!')
         flash('提交成功')
+    for error in form.email.errors:
+        flash(error)
     msgs = show(page, per_page, False)
     return render_template('contact.html', form=form, msgs=msgs)
 
@@ -258,7 +263,8 @@ def user(username, page=1):
     total = Use_Redis.get('total', 'post', disable=flag)
     if not total:
         total = Stats.query.filter_by(name='post_count').first().total
-        Use_Redis.set('total', 'post', post, disable=flag)
+        Use_Redis.set('total', 'post', total, disable=flag)
+    total = int(total)
     posts=Post.query.filter_by(user_id=current_user.id).order_by(
         db.desc(Post.time)).paginate(page, 8, False, total_in=total)
     if posts.pages < page and page > 1:
@@ -283,6 +289,7 @@ def article_detail(username, post_id):
 #making
 @app.route('/picture')
 def picture():
+    app.logger.error('error')
     abort(404)
 
 
@@ -345,6 +352,7 @@ def del_image(post, form, user_id):
             except:
                 app.logger.error("could't mark images")
 
+
 @app.route('/change/<post_id>', methods=['POST'])
 @login_required
 def change(post_id):
@@ -363,6 +371,7 @@ def change(post_id):
         db.session.commit()
         Use_Redis.eval('article', post_id, '*', disable=flag)
         Use_Redis.eval('index', '*', disable=flag)
+        Use_Redis.eval('cat', '0', '*', disable=flag)
         Use_Redis.eval('cat', str(post.cat_id), '*', disable=flag)
         Use_Redis.eval('cat', str(form.cat.data), '*', disable=flag)
         flash('你的修改已经保存.')
@@ -403,6 +412,7 @@ def write():
                 return render_template('write.html', title='写作ing',form=form)
         Use_Redis.eval('index', '*', disable=flag)
         Use_Redis.eval('cat', str(form.cat.data), '*', disable=flag)
+        Use_Redis.eval('cat', '0', '*', disable=flag)
         Use_Redis.eval('srh', '*', disable=flag)
         Use_Redis.delete('total', 'post', disable=flag)
         flash('提交成功!')
@@ -479,8 +489,9 @@ def upload():
 @login_required
 def control():
     cat = AddCat()
+    rep = RepCat()
     cats = PostCat.query.order_by('name').all()
-    return render_template('control.html', cat=cat, cats=cats)
+    return render_template('control.html', cat=cat, cats=cats, rep=rep)
 
 
 @app.route('/category/add', methods=['POST'])
@@ -500,6 +511,30 @@ def add_cat():
                 app.logger.error('database errror when add new cat')
         else:
             flash('类别已存在!')
+    return redirect('control'), 301
+
+
+@app.route('/category/replace', methods=['POST'])
+@login_required
+def rep_cat():
+    origin_id = request.form.get('origin_id')
+    if not origin_id:
+        return redirect('control'), 301
+    form = RepCat()
+    if form.validate_on_submit():
+        cat = PostCat.query.filter_by(id=int(origin_id)).first_or_404()
+        cat.name = form.name.data
+        try:
+            db.session.commit()
+            flash('ok')
+            Use_Redis.eval('index', '*', disable=flag)
+            Use_Redis.eval('total', 'post', disable=flag)
+            Use_Redis.eval('cat', origin_id, '*', disable=flag)
+        except:
+            flash('DB error!')
+            return redirect('control'), 301
+    for error in form.name.errors:
+        flash(error)
     return redirect('control'), 301
 
 
@@ -539,6 +574,7 @@ def choose_cate():
         if not total:
             total = Stats.query.filter_by(name='post_count').first().total
             Use_Redis.set('total', 'post', total, disable=flag)
+        total = int(total)
         posts = Post.query.order_by(db.desc(Post.time)).paginate(
             int(page), app.config['POST_PER_PAGE'], False, total_in=total)
         xml = render_template('category.xml', posts=posts)
