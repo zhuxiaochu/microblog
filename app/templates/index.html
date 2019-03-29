@@ -3,6 +3,18 @@
     <!-- Page Header -->
     <header class="masthead" style="background-image: url('/static/img/home-bg.jpg')">
       <div class="overlay"></div>
+      <div id="popUp">
+              <div id="close" class="close"><i class="fa fa-times"></i></div>
+              <div id="new"><span>NEW!</span></div>
+              {% if new %}
+              <h2>{{ new|safe }}</h2>
+              {% else %}
+              <h2>A tranquil day.^_^</h2>
+              {% endif %}
+              <br>
+            </div>
+            <div id="plus"><span>&nbsp;&nbsp;<i class="fa fa-plus"></i></span>
+            </div>
       <div class="container">
         <div class="row" id="row1">
           <div class="col-lg-8 col-md-10 mx-auto">
@@ -22,6 +34,27 @@
         </div>
       </div>
     </header>
+    <div>
+    <a class="scroll-top scroll-top-visible" href="#top">
+        <i class="fa fa-long-arrow-up" aria-hidden="true"></i></a>
+    </div>
+    <!--category-->
+    <div class="category" id="category">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <ul class="search-category nav nav-tabs nav-tabs-primary">
+          <li class="active">
+            <a href="#category" class="" id="cate0">全部</a>
+          </li>
+          {% if cats %}
+            {% for cat in cats %}
+            <li>
+              <a href="#category" id="cate{{ cat.id }}">{{ cat.name }}</a>
+            </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
 
     {% if user %}
       <div class="container">
@@ -29,32 +62,36 @@
           {% if posts %}
             <div class="col-lg-8 col-md-10 mx-auto">
             {% for post in posts.items %}
-              <div class="post-preview">
+              <div class="post-preview" id="post{{ loop.index}}">
                 <a href="{{ url_for('article_detail', username=user.username, post_id=post.id)}}">
                   <h2 class="post-title">
                     {{ post.title }}
                   </h2>
                 </a>
                 <p class="post-subtitle">
-                  &nbsp;&nbsp;&nbsp;&nbsp;{{ post.content|truncate(200, True)|striptags }}
+                  {{ post.content|truncate(200, True)|striptags }}
                 </p>
-                <p class="post-meta">Posted by
-                <a href="#">{{ user.username }}</a>
-                on {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}</p>
+                <div class="post-meta">Posted by
+                <a href="#row2" class="author">{{ post.author.username }}</a>
+                on <span class="time">{{ post.time }}</span>
+                <span class="cate">{{ post.cat.name }}</span>
+                <a href="#"><i class="fa fa-comments-o"></i></a>
+                </div>
               </div>
             {% endfor %}
               <hr>
               <!-- Pager -->
               <div class="clearfix">
                 {% if posts.has_prev %}
-                 <a class="tn btn-primary float-left" href="{{ url_for('index', page=posts.prev_num) }}">&larr; 上一页</a>
+                  <a class="tn btn-primary float-left" href="#category" onclick="prev()">&larr; 上一页</a>
                 {% else %}
-                    <a href=""></a>
+                  <a class="tn btn-primary float-left" href=""></a>
                 {% endif %}
+                  <a class="tn btn-primary" hidden="">第<span class="page">{{ page }}</span>页</a>
                 {% if posts.has_next %}
-                 <a class="tn btn-primary float-right" href="{{ url_for('index', page=posts.next_num) }}">下一页 &rarr;</a>
+                 <a class="tn btn-primary float-right" href="#category" onclick="next()">下一页 &rarr;</a>
                 {% else %}
-                    <a class="float-right" href="#row2">没有更多..</a>
+                    <a class="float-right" href="#category">没有更多..</a>
                 {% endif %}
               </div>
             </div>
@@ -129,6 +166,9 @@
       </div>
     </div>
     {% endif %}
+{% endblock %}
+{% block script %}
+  <script src="/static/js/index.min.js"></script>
 {% endblock %}
     
 

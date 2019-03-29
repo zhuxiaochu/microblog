@@ -1,75 +1,67 @@
-$(function() {
-
-  $("#contactForm input,#contactForm textarea").jqBootstrapValidation({
-    preventSubmit: true,
-    submitError: function($form, event, errors) {
-      // additional error messages or events
-    },
-    submitSuccess: function($form, event) {
-      event.preventDefault(); // prevent default submit behaviour
-      // get values from FORM
-      var name = $("input#name").val();
-      var email = $("input#email").val();
-      var phone = $("input#phone").val();
-      var message = $("textarea#message").val();
-      var firstName = name; // For Success/Failure Message
-      // Check for white space in name for Success/Fail message
-      if (firstName.indexOf(' ') >= 0) {
-        firstName = name.split(' ').slice(0, -1).join(' ');
-      }
-      $this = $("#sendMessageButton");
-      $this.prop("disabled", true); // Disable submit button until AJAX call is complete to prevent duplicate messages
-      $.ajax({
-        url: "././mail/contact_me.php",
-        type: "POST",
-        data: {
-          name: name,
-          phone: phone,
-          email: email,
-          message: message
-        },
-        cache: false,
-        success: function() {
-          // Success message
-          $('#success').html("<div class='alert alert-success'>");
-          $('#success > .alert-success').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
-            .append("</button>");
-          $('#success > .alert-success')
-            .append("<strong>Your message has been sent. </strong>");
-          $('#success > .alert-success')
-            .append('</div>');
-          //clear all fields
-          $('#contactForm').trigger("reset");
-        },
-        error: function() {
-          // Fail message
-          $('#success').html("<div class='alert alert-danger'>");
-          $('#success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
-            .append("</button>");
-          $('#success > .alert-danger').append($("<strong>").text("Sorry " + firstName + ", it seems that my mail server is not responding. Please try again later!"));
-          $('#success > .alert-danger').append('</div>');
-          //clear all fields
-          $('#contactForm').trigger("reset");
-        },
-        complete: function() {
-          setTimeout(function() {
-            $this.prop("disabled", false); // Re-enable submit button when AJAX call is complete
-          }, 1000);
-        }
-      });
-    },
-    filter: function() {
-      return $(this).is(":visible");
-    },
+function next() {
+  current_num = $("#page_num").text()
+  current_num = Number(current_num)
+  $.ajax({
+    type: "GET",
+    url: 'contact',
+    data: 'page=' + (current_num + 1).toString(),
+    success: function(msg){
+                $("#page_num").text(function(i,origin){
+                    if (msg === null){
+                      alert('error')
+                      }
+                    else {
+                      if (msg[999] != null){
+                        $('#prev').first().html('<li class="previous"><a class="" href="#row2" onclick="prev()">上一页</a></li>')
+                      };
+                      var total = Number(msg[998]);  //real_comments_number
+                      for (var i = Number(msg[997]); i > total; i--) {
+                        $('#comment' + i.toString()).hide()
+                      };
+                      if (msg[1000] === 'None'){
+                        $('#next').html('<li class="next disabled"><a href="#row2" style="background-color: #e0dede;">没有更多..</a></li>')
+                      }
+                      for (var i = 0; i < Number(msg[998]); i++) {
+                        $('#comment' + (i+1).toString() + ' .user_id').text(msg[i]['user_id'])
+                        $('#comment' + (i+1).toString() + ' .content_div').html(msg[i]['content'])
+                        $('#comment' + (i+1).toString() + ' .role').text(msg[i]['role'])
+                        $('#comment' + (i+1).toString() + ' .leave_time').text(moment(msg[i]['leave_time']).format('YYYY-MM-DD, HH:mm:ss'))
+                      };
+                    return Number(origin) + 1
+                  };
+                });
+    }
   });
+};
 
-  $("a[data-toggle=\"tab\"]").click(function(e) {
-    e.preventDefault();
-    $(this).tab("show");
+function prev(){
+  current_num = $("#page_num").text()
+  current_num = Number(current_num)
+  $.ajax({
+    type: "GET",
+    url: 'contact',
+    data: 'page=' + (current_num - 1).toString(),
+    success: function(msg){
+                $("#next").html('<li class="next"><a href="#row2" onclick="next()">下一页</a></li>')
+                $("#page_num").text(function(i,origin){
+                  if (msg === null){
+                    alert('no prev!')
+                  };
+                  if (msg[999] === 'None'){
+                    $('#prev').empty()
+                  };
+                  if ($('.next .disabled') != null) {
+                    $('.msgboard').show()
+                  };
+                  for (var i = 0; i < Number(msg[998]); i++) {
+                        $('#comment' + (i+1).toString() + ' .user_id').text(msg[i]['user_id'])
+                        $('#comment' + (i+1).toString() + ' .content_div').html(msg[i]['content'])
+                        $('#comment' + (i+1).toString() + ' .role').text(msg[i]['role'])
+                        $('#comment' + (i+1).toString() + ' .leave_time').text(moment(msg[i]['leave_time']).format('YYYY-MM-DD, HH:mm:ss'))
+                      };
+                  return Number(origin) - 1
+                });
+    }
   });
-});
+};
 
-/*When clicking on Full hide fail/success boxes */
-$('#name').focus(function() {
-  $('#success').html('');
-});

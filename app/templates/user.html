@@ -19,7 +19,7 @@
             <tr>
                 <th>个人介绍：</th>
                 <td>
-                    {% if user.about_me %}<p>{{user.about_me}}</p>{% endif %}
+                    {% if user.about_me %}<p>{{user.about_me|safe}}</p>{% endif %}
                 </td>
                 <td>
                     <span>{% include "flash.html" %}</span>
@@ -29,7 +29,7 @@
                 <th>上次访问时间：</th>
             <td>
                 {% if user.last_seen %}
-                    <em>{{ moment(user.last_seen).format('YYYY-MM-DD, HH:mm:ss') }}</em>
+                    <em><span class="time">{{ user.last_seen }}<span></span></em>
                 {% endif %}
             </td>
         </tr>    
@@ -45,6 +45,13 @@
                 <a href="{{ url_for('write') }}">写文章</a>
             </td>
         </tr>
+        {% if user.id == 1 %}
+        <tr>
+            <td>
+                <a href="{{ url_for('control') }}">后台管理</a>
+            </td>
+        </tr>
+        {% endif %}
       </table>
     </div>
 </header>

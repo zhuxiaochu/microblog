@@ -6,8 +6,18 @@
 test*
 
 #directory
-/logs
-__pycache__
+/logs/
+/__pycache__/
 #/app/static/ckeditor
 /pictures/*
 .env
+/venv
+/app/__pycache__/
+__pycache__
+/whoosh_index/
+#regular incompatibility across database
+/migrations/versions/
+/migrations/__pycache__/
+#others
+app/static/img/beian.png
+profile/

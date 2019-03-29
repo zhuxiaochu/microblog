@@ -2,10 +2,13 @@
 <html lang="zh-CN">
 
   <head>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
+    {% if title %}
+    <meta name="description" content="{{ title }}">
+    {% else %}
+    <meta name="description" content="python3,web development,informal essays">
+    {% endif %}
     <meta name="author" content="1956">
     {% if title %}
     <title> {{ title }} - 1956的博客</title>
@@ -21,7 +24,7 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
     <!-- Custom styles for this template -->
-    <link href="/static/css/clean-blog.css" rel="stylesheet"> 
+    <link href="/static/css/microblog.min.css" rel="stylesheet"> 
 
     <!-- HTML5 Shiv 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
     <!-- 注意： 如果通过 file://  引入 Respond.js 文件，则该文件无法起效果 -->
@@ -74,11 +77,18 @@
               <a class="nav-link" href="{{ url_for('index') }}">首页</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('picture') }}" onclick="return False">照片</a>
+              <a class="nav-link" href="{{ url_for('picture') }}" onclick="alert('making')" hidden="">照片</a>
             </li>
 
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('contact') }}">联系</a>
+            </li>
+            <li class="nav-item">
+              <form class="form-inline my-2 my-lg-0" action="/search">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name='s' id="searchbar">
+                <button class="btn search" type="submit">搜索</button>
+              </form>
+               <a class="nav-link"><i class="fa fa-search" aria-hidden="true" id="searchbtn"></i></a>
             </li>
           </ul>
         </div>
@@ -92,14 +102,14 @@
   
     
     <!-- Footer -->
-    <footer>
+    <footer class="move-down">
       <hr>
       <div class="container">
         <div class="row">
           <div class="col-lg-8 col-md-10 mx-auto">
             <ul class="list-inline text-center">
               <li class="list-inline-item">
-                <a href="#">
+                <a tabindex="0" class="popover-dismiss" data-placement="top" role="button" data-toggle="popover" data-trigger="focus" title="Dismissible popover" data-content="404~~">
                   <span class="fa-stack fa-lg">
                     <i class="fa fa-circle fa-stack-2x"></i>
                     <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
@@ -107,7 +117,7 @@
                 </a>
               </li>
               <li class="list-inline-item">
-                <a href="#">
+                <a tabindex="0" class="popover-dismiss" data-placement="top" role="button" data-toggle="popover" data-trigger="focus" title="Dismissible popover" data-content="404~~">
                   <span class="fa-stack fa-lg">
                     <i class="fa fa-circle fa-stack-2x"></i>
                     <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
@@ -115,27 +125,31 @@
                 </a>
               </li>
               <li class="list-inline-item">
-                <a href="#">
+                <a href="https://github.com/zhuxiaochu">
                   <span class="fa-stack fa-lg">
                     <i class="fa fa-circle fa-stack-2x"></i>
-                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse">
+                    </i>
                   </span>
                 </a>
               </li>
             </ul>
             <p class="copyright text-muted">Copyright &copy; zhuchuzjut  2019</p>
+            <p class="copyright text-muted">powered by<a href="http://flask.pocoo.org/" rel="nofollow"> flask</a>, <a href="https://cloud.tencent.com/" rel="nofollow">腾讯云</a>
+            </p>
+			      <p class="copyright text-muted">网站主体代码 》》<a href="https://github.com/zhuxiaochu/microblog" rel="nofollow">DEMO</a>
+            </p>
           </div>
         </div>
       </div>
     </footer>
-
+    
     <!-- Bootstrap core JavaScript -->
     <script src="/static/vendor/jquery/jquery.min.js"></script>
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    {{ moment.include_moment(local_js='/static/js/moment-with-locales.min.js') }}
+    <script type="text/javascript" src="/static/js/dayjs.min.js"></script>
     <!-- Custom scripts for this template -->
-    <script src="/static/js/clean-blog.js"></script>
-    <script src="/static/js/sign-up.js"></script>
+    <script src="/static/js/microblog.min.js"></script>
     {% block script %}{% endblock %}
   </body>
 </html>

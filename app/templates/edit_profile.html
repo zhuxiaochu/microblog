@@ -1,8 +1,15 @@
 {% extends "base.html" %}
-
+{% block stylesheet %}
+<style>
+    .nav-link,
+    .navbar-brand {
+        color: black !important;
+    }
+</style>
+{% endblock %}
 {% block content %}
-  <div class="container">
-    <div class="row move-down">
+  <div class="container move-down">
+    <div class="row">
        <h2>编辑个人信息</h2>
        <form action="" method="POST">
            {{ form.hidden_tag() }}
@@ -24,4 +31,16 @@
        </form>
     </div>
   </div>
+{% endblock %}
+{% block script %}
+{{ ckeditor.load(custom_url=url_for('static', filename='ckeditor/ckeditor.js')) }}
+{{ ckeditor.config(name='about_me',custom_config="
+            plugins: 'about,basicstyles,clipboard,toolbar,enterkey,entities,floatingspace,wysiwygarea,indentlist,link,list,undo,emoji,font,autogrow',
+            extraPlugins: 'autogrow',
+            autoGrow_minHeight: 200,
+            autoGrow_maxHeight: 300,
+            autoGrow_bottomSpace: 20,
+            codeSnippet_theme: 'monokai_sublime',
+            language: 'zh-CN,en,ko',
+") }}
 {% endblock %}

@@ -21,18 +21,18 @@
         {% if msgs %}
         <div class="col-lg-8 col-md-10 mx-auto msgbox">
         {% for msg in msgs.items %}
-          <div class="msgboard">
+          <div class="msgboard" id="comment{{ loop.index }}">
           <div class="msgban">
-            <span hidden="">{{ msg.id }}</span>
-            <a href="#">第{{ loop.index }}楼|</a>
+            <span class="user_id" hidden="">{{ msg.id }}</span>
+            <a href="#row2">第{{ loop.index }}楼&brvbar;</a>
             {% if msg.user_id == 1 %}
-            <span>[站长]</span>
+            <span class="role">[站长]&brvbar;</span>
             {% endif %}
-            <span>{{ moment(msg.leave_time).format('YYYY-MM-DD, HH:mm:ss') }}|</span>
-            {% if msg.user_id != 0 %}
-            <a href="#">{{ msg.author.username }}</a>
+            <span class="leave_time">{{ msg.leave_time }}</span>
+            {% if msg.user_id %}
+            <a href="#">&brvbar;&nbsp;{{ msg.author.username }}</a>
             {% else %}
-            <a href="#">匿名</a>
+            <a href="#" class="role">匿名</a>
             {% endif %}
             {% if current_user.id == 1 %}
             <a href="{{url_for('delete_msg', msg_id=msg.id)}}">删除</a>
@@ -40,12 +40,33 @@
             <br>
           </div>
           <div class="msgcontent">
-            <p>{{ msg.content|safe }}</p>
+            <div class="content_div">{{ msg.content|safe }}</div>
           </div>
           </div>
         {% endfor %}  
         </div>
         {% endif %}  
+      </div>
+      <div class="row">
+        <div hidden="">第<span id="page_num">1</span>页
+        </div>
+      </div>
+      <div class="row">
+          <div class="col-sm-3 col-md-5 col-lg-6 col-lg-offset-1 text-center" id="prev">
+            <!--ul class="pager "-->
+               {% if msgs.has_prev %}
+                 <li class="previous"><a class="" onclick="prev()">上一页</a></li>
+                {% else %}
+                    <a href=""></a>
+                {% endif %}
+          </div>
+          <div class="col-sm-3 col-md-3 col-lg-6 col-md-offset-3 text-center" id="next">
+                {% if msgs.has_next %}
+                    <li class="next"><a href="#row2" onclick="next()">下一页</a></li>
+                {% else %}
+                    <li class="next disabled"><a href="#row2" style="background-color: #e0dede;">没有更多..</a></li>
+                {% endif %}
+          </div>
       </div>
       <div class="row" id="box">
         <div class="col-lg-8 col-md-10 mx-auto">
@@ -57,7 +78,6 @@
               <div class="form-group floating-label-form-group controls">
                 <label>Name</label>
                 {{ form.name(class="form-control",placeholder="名字",id="name") }}
-                <!--input type="text" class="form-control" placeholder="Name" id="name" required data-validation-required-message="Please enter your name."-->
                 <p class="help-block text-danger"></p>
               </div>
             </div>
@@ -88,7 +108,7 @@
 {% block script %}
 {{ ckeditor.load(custom_url=url_for('static', filename='ckeditor/ckeditor.js')) }}
 {{ ckeditor.config(name='content',custom_config="
-            plugins: 'about,basicstyles,clipboard,toolbar,enterkey,entities,floatingspace,wysiwygarea,indentlist,link,list,undo,emoji,font,autogrow,mathjax',
+            plugins: 'about,basicstyles,clipboard,toolbar,enterkey,entities,floatingspace,wysiwygarea,indentlist,link,list,undo,emoji,font,autogrow,mathjax,indentblock,',
             extraPlugins: 'autogrow',
             autoGrow_minHeight: 200,
             autoGrow_maxHeight: 300,
@@ -97,4 +117,5 @@
             language: 'zh-CN,en,ko',
             mathJaxLib: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',
 ") }}
+<script src="/static/js/contact_me.min.js"></script>
 {% endblock %}

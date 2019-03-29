@@ -2,10 +2,11 @@ import os
 from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-basedir = os.path.join(basedir,'.env')
+load_dotenv(os.path.join(basedir,'.env'))
 
 class Config(object):
     '''all important params should be set properly'''
+    SEND_FILE_MAX_AGE_DEFAULT = 432000
     SRF_ENABLED = True
     SECRET_KEY = os.environ.get('SECRET_KEY') or \
         'Could-you-please-tell-ME-when-to-go-home'
@@ -42,3 +43,24 @@ class Config(object):
         }
     ]
     SCHEDULER_API_ENABLED = True
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE')\
+        is not None
+    #flask-login
+    REMEMBER_COOKIE_SECURE = True
+    REMEMBER_COOKIE_HTTPONLY = True
+    #flask-wtf
+    WTF_CSRF_TIME_LIMIT = 28800 #eight hours,means that you shouldn't \
+                                #write an article for more than eight hours
+    POST_PER_PAGE = 15  #articel num in index.html
+    #flask-whooshsqlalchemyplus
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    #redis
+    REDIS_HOST = os.environ.get('REDIS_HOST') or 'localhost'
+    REDIS_PORT = os.environ.get('REDIS_PORT') or 6379
+    REDIS_DB = os.environ.get('REDIS_DB') or 0
+    REDIS_DISABLE = os.environ.get('REDIS_DISABLE') is not None
+
+    DEBUG_QUERY = os.environ.get('DEBUG_QUERY') is not None
+    PROFILER = os.environ.get('PROFILER') is None
+
+    TEST = os.environ.get('TEST') is None

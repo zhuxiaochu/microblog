@@ -11,7 +11,7 @@
             <p class="post-meta">
                 Posted by
               <a href="#">{{ post.author.username }}</a>
-              on {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
+              on {{ post.time }}
             </p>
             <p>
                 <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
@@ -27,47 +27,41 @@
         </div>
     </div>
     <div class="col-xs-3 col-md-6 col-lg-6 text-right">
-        {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
+        <span class="time">{{ post.time }}</span>
     </div>
 </div>
 <div class="row">
     <div class="col-xs-3 col-md-6 col-lg-6">
         <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <input class="btn button" type="submit" value="删除" >
+
+            <input class="btn button" data-toggle="modal" data-target="#exampleModal" type="button" value="删除" >
+            <!--modal-->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">删除ing</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    真的要删除吗？
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">确定</button>
+                  </div>
+                </div>
+              </div>
+            </div>
         </form>
     </div>
+    
     <div class="col-xs-3 col-md-2 col-lg-6 text-right">
         <a href="{{ url_for('editpost',post_id = post.id) }}">
         <input class="btn button" value="编辑" type="button">
         </a>
     </div>
 </div>
-<!--div class="row">
-    <div class="col-xs-12 col-md-6 col-md-offset=3">
-        <article class="post">
-            <div class="post username">
-                {{ post.author.username }}
-            </div>
-            <div>
-                {{ moment(post.time).format('YYYY-MM-DD, HH:mm:ss') }}
-            </div>
-            <div>
-                <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
-                    <input class="btn button" type="submit" value="删除" >
-                </form>
-            </div>
-        </article>
-        <article>
-            <div class="post title">
-                标题：
-            </div>
-            <div>
-                {{ post.title }}
-            </div>
-            <div>
-                <a class="btn button" href="{{ url_for('editpost',post_id = post.id) }}" type="submit" value="编辑">编辑</a>
-            </div>
-        </article>
-    </div>
-</div -->

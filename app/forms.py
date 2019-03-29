@@ -1,10 +1,10 @@
 from collections import defaultdict
 from flask_wtf import FlaskForm as Form
-from app.models import User, RegistCode
+from app.models import User, RegistCode, PostCat
 from wtforms.fields import (StringField,TextField,TextAreaField,SubmitField,
-    BooleanField, PasswordField)
+    BooleanField, PasswordField, SelectField)
 from wtforms.validators import (DataRequired, Length, ValidationError, Email,
-    EqualTo)
+    EqualTo, StopValidation)
 from flask_ckeditor import CKEditorField
 from app import db
 
@@ -73,12 +73,13 @@ class SignUpForm(Form):
 class EditProfileForm(Form):
     """docstring for EditProfileForm"""
     username = StringField('用户名', validators=[DataRequired()])        
-    about_me = TextAreaField('个人简介', validators=[Length(min=0,max=140)])
+    about_me = TextAreaField('个人简介', validators=[Length(min=0,max=130)])
     submit = SubmitField('保存')
 
     def __init__(self, original_username, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
         self.original_username = original_username
+
     def validate(self):
         if not Form.validate(self):
             return False
@@ -93,12 +94,34 @@ class EditProfileForm(Form):
 class ChangeForm(Form):
     '''change an existed article'''
     title = TextField('title', validators=[DataRequired()])
-    content = CKEditorField('content', validators=[Length(min=0, max=12000)])
+    cat = SelectField('category', coerce=int)#coerce is important
+    content = CKEditorField('content', validators=[Length(min=0, max=19000)])
+
+    def __init__(self, *args, **kwargs):
+        super(ChangeForm, self).__init__(*args, **kwargs)
+        self.cat.choices = [(cat.id, cat.name) for cat in PostCat.query.order_by(
+            'name')]
+
+    def validate_cat(self, cat):
+        cat = PostCat.query.filter_by(id=cat.data).first()
+        if not cat:
+            raise ValidationError('不存在此类别/no Cat')
 
 class PostForm(Form):
     '''write a new article'''
     title = TextField('title', validators=[DataRequired(),Length(min=0,max=120)])
-    content = TextAreaField('content', validators=[Length(min=0, max=12000)])
+    cat = SelectField('category', coerce=int)
+    content = TextAreaField('content', validators=[Length(min=0, max=19000)])
+
+    def __init__(self, *args, **kwargs):
+        super(PostForm, self).__init__(*args, **kwargs)
+        self.cat.choices = [(cat.id, cat.name) for cat in PostCat.query.order_by(
+            'name')]
+
+    def validate_cat(self, cat):
+        cat = PostCat.query.filter_by(id=cat.data).first()
+        if not cat:
+            raise ValidationError('不存在此类别/no Cat')
 
 #ask for an email for reset 
 class ResetPasswordRequestForm(Form):
@@ -121,3 +144,25 @@ class LeaveMsgForm(Form):
     email = StringField('Email')
     content = TextAreaField('content', validators=[Length(min=3,
         max=200, message='长度不符合要求')])
+
+    def validate_email(self, email):
+        if len(email.data) > 40:
+            raise ValidationError('email is too long!')
+
+
+class AddCat(Form):
+    '''add a category'''
+    name = StringField('category', validators=[DataRequired(),
+        Length(max=12)])
+
+
+class RepCat(Form):
+    '''add a category'''
+    name = StringField('new', validators=[DataRequired(),
+        Length(max=12)])
+
+    def validate_name(self, name):
+        name = PostCat.query.filter_by(name=name.data).first()
+        if name:
+            raise ValidationError('cat already exists!')
+

@@ -1,7 +1,7 @@
 import jwt 
 import secrets
-from app import db
-from app import login
+import flask_whooshalchemyplus
+from app import db, redis1, login
 from app import app
 from datetime import datetime
 from time import time
@@ -25,6 +25,11 @@ followers = db.Table('followers',
 	db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
 
+#post_tag_relationship
+p_tag_rel = db.Table('p_tag_rel',
+	db.Column('tag_id', db.Integer, db.ForeignKey('post_tag.id')),
+	db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
+)
 
 #create user orm
 class User(UserMixin,db.Model):
@@ -40,13 +45,13 @@ class User(UserMixin,db.Model):
 		lazy='dynamic')
 	upload_image = db.relationship('UploadImage', backref='uploader',
 		lazy='dynamic')
-	upload_image = db.relationship('LeaveMessage', backref='author',
+	leave_message = db.relationship('LeaveMessage', backref='author',
 		lazy='dynamic')
 
 	followed = db.relationship(
 		'User', secondary=followers,
 		primaryjoin=(followers.c.follower_id == id),
-		secondaryjoin=(followers.c.followed_id == id ),
+		secondaryjoin=(followers.c.followed_id == id),
 		backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
 	def follow(self, user):
@@ -98,16 +103,33 @@ class User(UserMixin,db.Model):
 			return
 		return User.query.get(id)
 
+
 #create articles
 class Post(db.Model):
+	__searchable__ = ['title', 'content']
+
 	id = db.Column(db.Integer, primary_key=True)
-	title = db.Column(db.String(100))
-	content = db.Column(db.String(140))                                    #autoincrease
+	title = db.Column(db.String(128))
+	content = db.Column(db.String(20000))                                    #autoincrease
 	time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
+	last_modify = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	cat_id = db.Column(db.Integer, db.ForeignKey('post_cat.id'))
+	tags = db.relationship('PostTag',
+		secondary=p_tag_rel,
+		backref=db.backref('posts', lazy='dynamic'), lazy='dynamic')
 
 	def __repr__(self):
-		return '<Post %r>' % (self.title)
+		return '<Post {0}>'.format(self.title)
+
+post_trigger = db.DDL(
+	'''CREATE TRIGGER 'count_up' AFTER INSERT ON 'post' FOR EACH ROW UPDATE 'stats'
+SET 'stats'.'value' = 'stats'.'value' + 1 
+WHERE 'stats'.'name' = "post_count";
+CREATE TRIGGER 'count_down' AFTER DELETE ON 'post' FOR EACH ROW UPDATE 'stats'
+SET 'stats'.'value' = 'stats'.'value' - 1 
+WHERE 'stats'.'name' = 'post_count';''')
+db.event.listen(Post.__table__, 'after_create', post_trigger.execute_if(dialect='mysql'))
 
 
 #verification code
@@ -115,7 +137,7 @@ class Post(db.Model):
 class RegistCode(db.Model):
 	'''code-email table'''
 	id = db.Column(db.Integer, primary_key=True)
-	verify_code = db.Column(db.String(8), index=True)
+	verify_code = db.Column(db.String(16), index=True)
 	email = db.Column(db.String(120), index=True, unique=True)
 
 	def code_method(self):
@@ -133,6 +155,7 @@ class RegistCode(db.Model):
 	def __repr__(self):
 		return '<RegistCode %r>' % (self.email)
 
+
 class LoginRecord(db.Model):
 	'''login record'''
 	id = db.Column(db.Integer, primary_key=True)
@@ -148,7 +171,8 @@ class LoginRecord(db.Model):
 class UploadImage(db.Model):
 	'''mark image,mark=0 means image can be deleted later'''
 	id = db.Column(db.Integer, primary_key=True)
-	image_path = db.Column(db.String(64))
+	image_path = db.Column(db.String(256))
+	image_name = db.Column(db.String(48))
 	upload_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 	mark = db.Column(db.Integer, index=True, default=0)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -161,13 +185,84 @@ class LeaveMessage(db.Model):
 	'''message board'''
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(12))
-	content = db.Column(db.String(140))
-	email = db.Column(db.String(32), index=True)
+	content = db.Column(db.String(210))
+	email = db.Column(db.String(48), index=True)
 	leave_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
-	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), default=0)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 	def __repr__(self):
 		if self.user_id:
 			return '<LeaveMessage %r>' % (self.author.username)
 		else:
 			return '<LeaveMessage %r>' % (self.name)
+
+
+class PostCat(db.Model):
+	'''category for post'''
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(12))
+	posts = db.relationship('Post', backref='cat', lazy='dynamic')
+
+	def __repr__(self):
+		return '<PostCat %r>' % (self.name)
+
+
+class PostTag(db.Model):
+	'''tags for post'''
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(12))
+
+	def __repr__(self):
+		return '<PostTag {0}>'.format(self.name)
+
+
+class Use_Redis(object):
+
+	@classmethod
+	def set(cls, *args, disable=False):
+		"""key=args join by '_'"""
+		if not disable:
+			*keys, value = args
+			if not keys:
+				raise TypeError('need at least two arguments')
+			key = '_'.join(keys)
+			return redis1.set(key, value)
+		else:
+			return 
+
+	@classmethod
+	def get(cls, *args, disable=False):
+		if not disable:
+			key = '_'.join(args)
+			return redis1.get(key)
+		else:
+			return 
+	
+	@classmethod
+	def delete(cls, *args, disable=False):
+		if not disable:
+			key = '_'.join(args)
+			return redis1.delete(key)
+		else:
+			return
+
+	@classmethod
+	def eval(cls, *args, disable=False):
+		regex = '_'.join(args)
+		if not disable:
+			return redis1.eval(
+				"local keys = redis.call('keys', ARGV[1]) \n for i=1,#keys,\
+				5000 do \n redis.call('del', unpack(keys, i, math.min(\
+				i+4999, #keys))) \n end \n return keys", 0, regex)
+
+	def __repr__(self):
+		return '<redis_custom_tool>'
+
+class Stats(db.Model):
+
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(24), index=True)
+	total = db.Column(db.Integer, default=0)
+
+	def __repr__(self):
+		return '<stats {0}'.format(self.name)

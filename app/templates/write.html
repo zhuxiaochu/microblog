@@ -12,13 +12,18 @@
 <div class="container move-down">
 	<form  class="form-horizontal" action="" method="POST">
 		{{ form.hidden_tag() }}
-		{{ form.csrf_token }}
 		<div class="control-group">
 	    <label for="title" class="control-label">Title:</label>
 			<div class="controls">
 				{{ form.title(maxlength=64, class="span5") }}
 			</div>
 		</div>
+        <div class="control-group">
+        <label for="cate" class="control-label">Choose a cate:</label>
+            <div class="controls">
+                {{ form.cat() }}
+            </div>
+        </div>
 		<div class="control-group">
 	   	 <label for="content" class="control-label">Content:</label>
 			<div class="controls">
@@ -36,14 +41,16 @@
 {% block script %}
 {{ ckeditor.load(custom_url=url_for('static', filename='ckeditor/ckeditor.js')) }}
 {{ ckeditor.config(name='content',custom_config="
-            extraPlugins: 'autogrow,codesnippet,uploadimage,filebrowser',
+            extraPlugins: 'autogrow,codesnippet,uploadimage,filebrowser,textindent',
             autoGrow_minHeight: 200,
             autoGrow_maxHeight: 800,
             autoGrow_bottomSpace: 30,
             codeSnippet_theme: 'monokai_sublime',
+            removeButtons: 'Underline',
             removePlugins: 'resize,emoji',
             language: 'zh-CN,en,ko',
             mathJaxLib: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',
+            indentation: '2em',
 ") }}
 {% endblock %}
 
