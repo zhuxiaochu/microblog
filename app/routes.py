@@ -1,4 +1,4 @@
-import os
+import os, sys
 from time import time
 from threading import Thread
 from flask_sqlalchemy import get_debug_queries
@@ -24,7 +24,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 if app.config['PROFILER']:
     if not os.path.exists('profile'):
         os.mkdir('profile')
-    app.wsgi_app = ProfilerMiddleware(app.wsgi_app, profile_dir='profile',
+    app.wsgi_app = ProfilerMiddleware(app.wsgi_app,stream=profile_dir='profile',
         restrictions=[30])
 flag = app.config['REDIS_DISABLE']
 
@@ -304,6 +304,8 @@ def delete(post_id):
     flash("删除成功!")
     Use_Redis.eval('index', '*', disable=flag)
     Use_Redis.eval('article', post_id, '*', disable=flag)
+    Use_Redis.eval('cat', '0', '*', disable=flag)
+    Use_Redis.eval('cat', str(post.cat_id), disable=flag)
     Use_Redis.delete('total', 'post', disable=flag)
     return redirect(url_for('user',username=current_user.username))
 
@@ -319,6 +321,7 @@ def editpost(post_id):
     form.content.data = post.content
     form.cat.data = post.cat_id
     return render_template('editpost.html', form=form, post_id=post.id)
+
 
 def del_image(post, form, user_id):
     with app.app_context():
