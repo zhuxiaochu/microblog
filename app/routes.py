@@ -24,7 +24,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 if app.config['PROFILER']:
     if not os.path.exists('profile'):
         os.mkdir('profile')
-    app.wsgi_app = ProfilerMiddleware(app.wsgi_app,stream=profile_dir='profile',
+    app.wsgi_app = ProfilerMiddleware(app.wsgi_app, profile_dir='profile',
         restrictions=[30])
 flag = app.config['REDIS_DISABLE']
 
@@ -71,11 +71,13 @@ def index(page=1):
         posts = Post.query.filter_by(user_id=user.id).order_by(
             Post.time.desc()).paginate(
             page, app.config['POST_PER_PAGE'], False, total_in=total)
+        news = user.about_me
     else:
         posts = None
+        news = 'Testing'
     cats = PostCat.query.all()
     html = render_template('index.html', user=user, posts=posts,
-                          cats=cats, page=page, new=user.about_me)
+                          cats=cats, page=page, new=news)
     Use_Redis.set('index', str(current_user.get_id() or '0'), html,
             disable=flag)
     return html

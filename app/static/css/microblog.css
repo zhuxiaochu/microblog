@@ -619,6 +619,26 @@ pre {
   }
 }
 
+@media all and (max-width: 455px){
+  .masthead.index {
+  background-image: url('/static/img/home-bg-s.jpg');
+  }
+
+  .masthead.contact {
+  background-image: url('/static/img/contact-bg-s.jpg');
+  }
+}
+
+@media all and (min-width: 456px) {
+  .masthead.index {
+  background-image: url('/static/img/home-bg.jpg');
+  }
+
+  .masthead.contact {
+  background-image: url('/static/img/contact-bg.jpg');
+  }
+}
+
 h2 p {
   margin: 1px 1px;
   font-size: 1em;
@@ -627,6 +647,7 @@ h2 p {
 .post-preview p {
   text-indent: 2em;
 }
+
 
 /*detail*/
 .blog-main .blog-nav{

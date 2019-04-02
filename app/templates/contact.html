@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     <!-- Page Header -->
-    <header class="masthead" style="background-image: url('static/img/contact-bg.jpg')">
+    <header class="masthead contact">
       <div class="overlay"></div>
       <div class="container">
         <div class="row">
@@ -108,7 +108,7 @@
 {% block script %}
 {{ ckeditor.load(custom_url=url_for('static', filename='ckeditor/ckeditor.js')) }}
 {{ ckeditor.config(name='content',custom_config="
-            plugins: 'about,basicstyles,clipboard,toolbar,enterkey,entities,floatingspace,wysiwygarea,indentlist,link,list,undo,emoji,font,autogrow,mathjax,indentblock,',
+            plugins: 'about,basicstyles,clipboard,toolbar,enterkey,entities,floatingspace,wysiwygarea,indentlist,link,list,undo,emoji,font,autogrow,mathjax',
             extraPlugins: 'autogrow',
             autoGrow_minHeight: 200,
             autoGrow_maxHeight: 300,
