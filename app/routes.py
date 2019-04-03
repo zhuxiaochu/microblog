@@ -1,10 +1,10 @@
-import os, sys
+import os, sys, pickle
 from time import time
 from threading import Thread
 from flask_sqlalchemy import get_debug_queries
 from bs4 import BeautifulSoup
 from flask import (render_template, flash, url_for, session, redirect, request,
-    abort, send_from_directory, jsonify)
+    abort, send_from_directory, jsonify, make_response)
 from app import app, db, login, limiter, csrf
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import (Post, User, RegistCode, UploadImage, LeaveMessage,
@@ -307,7 +307,7 @@ def delete(post_id):
     Use_Redis.eval('index', '*', disable=flag)
     Use_Redis.eval('article', post_id, '*', disable=flag)
     Use_Redis.eval('cat', '0', '*', disable=flag)
-    Use_Redis.eval('cat', str(post.cat_id), disable=flag)
+    Use_Redis.eval('cat', str(post.cat_id), '*', disable=flag)
     Use_Redis.delete('total', 'post', disable=flag)
     return redirect(url_for('user',username=current_user.username))
 
@@ -574,6 +574,7 @@ def choose_cate():
         abort(404)
     xml = Use_Redis.get('cat', cat_id, page, disable=flag)
     if xml:
+        xml = pickle.loads(xml)
         return xml
     if int(cat_id) == 0:
         total = Use_Redis.get('total', 'post', disable=flag)
@@ -583,15 +584,17 @@ def choose_cate():
         total = int(total)
         posts = Post.query.order_by(db.desc(Post.time)).paginate(
             int(page), app.config['POST_PER_PAGE'], False, total_in=total)
-        xml = render_template('category.xml', posts=posts)
-        Use_Redis.set('cat', cat_id, page, xml, disable=flag)
+        xml = make_response(render_template('category.xml', posts=posts))
+        xml.headers['Content-Type'] = 'application/xml; charset=utf-8'
+        Use_Redis.set('cat', cat_id, page, pickle.dumps(xml), disable=flag)
     else:
         posts = Post.query.filter_by(
             cat_id=int(cat_id)).order_by(
             Post.time.desc()).paginate(
             int(page), app.config['POST_PER_PAGE'], False)
-        xml = render_template('category.xml', posts=posts)
-        Use_Redis.set('cat', cat_id, page, xml, disable=flag)
+        xml = make_response(render_template('category.xml', posts=posts))
+        xml.headers['Content-Type'] = 'application/xml; charset=utf-8'
+        Use_Redis.set('cat', cat_id, page, pickle.dumps(xml), disable=flag)
     return xml
 
 

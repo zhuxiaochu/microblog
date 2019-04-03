@@ -7,8 +7,7 @@ $(".category a").click(function(){
     url: '/category',  /*only need number*/
     data: {cat_id:cate_id.slice(4)},
     success: function(msg){
-        xmlDoc = $.parseXML( msg ),
-        $xml = $( xmlDoc );
+        $xml = $( msg );
         $(".page").text(1);
         var exp_num = Number($xml.find('exp_num').text());
         var real_num = Number($xml.find('real_num').text());
@@ -62,8 +61,7 @@ function next() {
     url: '/category',
     data: {cat_id:cat_id,page:(page + 1).toString()},
     success: function(msg){
-        xmlDoc = $.parseXML( msg ),
-        $xml = $( xmlDoc );
+        $xml = $( msg );
         var exp_num = Number($xml.find('exp_num').text());
         var real_num = Number($xml.find('real_num').text())
         var next_num = $xml.find('next_num').text();
@@ -111,8 +109,7 @@ function prev() {
     url: '/category',
     data: {cat_id:cat_id,page:(page - 1).toString()},
     success: function(msg){
-        xmlDoc = $.parseXML( msg ),
-        $xml = $( xmlDoc );
+        $xml = $( msg );
         var exp_num = Number($xml.find('exp_num').text());
         var real_num = exp_num;
         var next_num = $xml.find('next_num').text();
