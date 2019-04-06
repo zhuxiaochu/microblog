@@ -106,6 +106,12 @@ class User(UserMixin,db.Model):
 
 #create articles
 class Post(db.Model):
+	'''record stats about post
+	param:
+	    temp_store = 0 means not temp,default=0
+	    baidu_linksubmit = 0 means not be submitted to baidu crawler
+	    click record how many times the post have been accessed
+	'''
 	__searchable__ = ['title', 'content']
 
 	id = db.Column(db.Integer, primary_key=True)
@@ -113,6 +119,9 @@ class Post(db.Model):
 	content = db.Column(db.String(20000))                                    #autoincrease
 	time = db.Column(db.DateTime, index=True, default=datetime.utcnow)     #value is function 
 	last_modify = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+	temp_store = db.Column(db.Integer, index=True, default=0)
+	baidu_linksubmit = db.Column(db.Integer, default=0)
+	click = db.Column(db.Integer, default=0)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	cat_id = db.Column(db.Integer, db.ForeignKey('post_cat.id'))
 	tags = db.relationship('PostTag',
@@ -122,6 +131,7 @@ class Post(db.Model):
 	def __repr__(self):
 		return '<Post {0}>'.format(self.title)
 
+#untested
 post_trigger = db.DDL(
 	'''CREATE TRIGGER 'count_up' AFTER INSERT ON 'post' FOR EACH ROW UPDATE 'stats'
 SET 'stats'.'value' = 'stats'.'value' + 1 

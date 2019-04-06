@@ -27,7 +27,7 @@
               {% if subheading %}
               <span class="subheading">{{ subheading }}</span>
               {% else %}
-              <span class="subheading">分享一点点技术和感悟</span>
+              <span class="subheading"></span>
               {% endif %}
             </div>
           </div>
@@ -67,6 +67,11 @@
                   <h2 class="post-title">
                     {{ post.title }}
                   </h2>
+                  <span class="sign">
+                  {% if post.temp_store == 1 %}
+                  未完成
+                  {% endif %}
+                  </span>
                 </a>
                 <p class="post-subtitle">
                   {{ post.content|truncate(200, True)|striptags }}
@@ -168,7 +173,7 @@
     {% endif %}
 {% endblock %}
 {% block script %}
-  <script src="/static/js/index.min.js"></script>
+  <script src="/static/js/index.js"></script>
 {% endblock %}
     
 

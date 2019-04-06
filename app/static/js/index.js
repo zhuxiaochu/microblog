@@ -36,6 +36,7 @@ $(".category a").click(function(){
             $content = $article.find('content'),
             $cate = $article.find('cate'),
             $author = $article.find('author'),
+            $temp = $article.find('temp'),
             $post = $("#post" + i.toString()),
             $post.show(),
             $post.find('.post-title').text($title.text()),
@@ -44,6 +45,7 @@ $(".category a").click(function(){
             $post.find('.post-meta .author').text($author.text()),
             $post.find('.cate').text($cate.text()),
             $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('span.sign').text($temp.text())
         };
     },
     error: function(msg) {
@@ -87,6 +89,7 @@ function next() {
             $content = $article.find('content'),
             $cate = $article.find('cate'),
             $author = $article.find('author'),
+            $temp = $article.find('temp'),
             $post = $("#post" + i.toString()),
             $post.show(),
             $post.find('.post-title').text($title.text()),
@@ -94,7 +97,8 @@ function next() {
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta .author').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss')),
+            $post.find('span.sign').text($temp.text())
         };
     }
   });
@@ -135,6 +139,7 @@ function prev() {
             $content = $article.find('content'),
             $cate = $article.find('cate'),
             $author = $article.find('author'),
+            $temp = $article.find('temp'),
             $post = $("#post" + i.toString()),
             $post.show(),
             $post.find('.post-title').text($title.text()),
@@ -143,6 +148,7 @@ function prev() {
             $post.find('.post-meta author').text($author.text()),
             $post.find('.cate').text($cate.text()),
             $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('span.sign').text($temp.text())
         };
     }
   });

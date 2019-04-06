@@ -39,9 +39,10 @@ def header_whitelist():
 
 @app.before_request
 def before_request():
-    if current_user.is_authenticated:
-        current_user.last_seen = datetime.utcnow()
-        db.session.commit()
+    if request.endpoint == 'user' and request.referrer.endswith('/login'):
+        if current_user.is_authenticated:
+            current_user.last_seen = datetime.utcnow()
+            db.session.commit()
 
 @app.after_request
 def add_header(response):
@@ -368,11 +369,15 @@ def change(post_id):
     if form.validate_on_submit():
         t = Thread(target=del_image, args=(post, form, current_user.id))
         t.start()
+        temp_store = 0
+        if request.form.get('temp'):
+            temp_store = 1
         origin_id = str(post.cat_id)
         post.title = form.title.data
         post.content = form.content.data
         post.cat_id = form.cat.data
         post.last_modify = datetime.utcnow()
+        post.temp_store = temp_store
         db.session.add(post)
         db.session.commit()
         Use_Redis.eval('article', post_id, '*', disable=flag)
@@ -393,8 +398,12 @@ def change(post_id):
 def write():
     form = PostForm()
     if form.validate_on_submit() and request.method == 'POST':
+        temp_store = 0
+        if request.form.get('temp'):
+            temp_store = 1
         post = Post(title=form.title.data, content=form.content.data,
-            user_id=current_user.id, cat_id=form.cat.data)
+            user_id=current_user.id, cat_id=form.cat.data,
+            temp_store=temp_store)
         db.session.add(post)
         db.session.commit()
         soup_post = BeautifulSoup(post.content, 'lxml')
@@ -582,14 +591,14 @@ def choose_cate():
             total = Stats.query.filter_by(name='post_count').first().total
             Use_Redis.set('total', 'post', total, disable=flag)
         total = int(total)
-        posts = Post.query.order_by(db.desc(Post.time)).paginate(
+        posts = Post.query.filter_by(user_id=1).order_by(db.desc(Post.time)).paginate(
             int(page), app.config['POST_PER_PAGE'], False, total_in=total)
         xml = make_response(render_template('category.xml', posts=posts))
         xml.headers['Content-Type'] = 'application/xml; charset=utf-8'
         Use_Redis.set('cat', cat_id, page, pickle.dumps(xml), disable=flag)
     else:
         posts = Post.query.filter_by(
-            cat_id=int(cat_id)).order_by(
+            cat_id=int(cat_id), user_id=1).order_by(
             Post.time.desc()).paginate(
             int(page), app.config['POST_PER_PAGE'], False)
         xml = make_response(render_template('category.xml', posts=posts))

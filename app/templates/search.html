@@ -24,7 +24,7 @@
                 </form>
             </div>
             <div class="search-title">
-                搜索结果：
+                搜索结果({{ results.__len__() }}条):
             </div>
             {% if results %}
               {% for s in results %}

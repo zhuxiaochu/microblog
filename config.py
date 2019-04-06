@@ -64,3 +64,6 @@ class Config(object):
     PROFILER = os.environ.get('PROFILER') is not None
 
     TEST = os.environ.get('TEST') is None
+
+    #get the exclusive url from baidu
+    BAIDU_LINKSUBMIT = eval(os.environ.get('BAIDU_LINKSUBMIT'))

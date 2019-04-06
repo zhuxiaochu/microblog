@@ -22,6 +22,9 @@
 
           <div class="blog-post">
             <h2 class="blog-post-title">{{ post.title }}</h2>
+            {% if post.temp_store == 1%}
+            <span class="sign">未完成</span>
+            {% endif %}
             <div class="blog-post-meta">
               <i class="fa fa-clock-o"></i>
               <span class="time">
