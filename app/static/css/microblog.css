@@ -744,3 +744,12 @@ hr:before, hr:after { content: ''; }
 .btn.btn-primary.temp {
   background-color: #131c1d70;
 }
+
+/*manage*/
+div.inline {
+  display: inline;
+}
+
+.post.title {
+  word-break: break-all;
+}

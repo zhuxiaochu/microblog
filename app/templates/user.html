@@ -68,7 +68,7 @@
       <div class="clearfix visible-xs-block"></div>
     </div>
     <div class="row move-down">
-          <div class="col-sm-3 col-md-5 col-lg-6 col-lg-offset-1 text-center">
+          <div class="col-md-5 col-lg-6 col-6 text-center">
             <!--ul class="pager "-->
                {% if posts.has_prev %}
                  <li class="previous"><a class="" href="{{ url_for('user',username=current_user.username, page=posts.prev_num) }}">上一页</a></li>
@@ -76,7 +76,7 @@
                     <a href=""></a>
                 {% endif %}
           </div>
-          <div class="col-sm-3 col-md-3 col-lg-6 col-md-offset-3 text-center">
+          <div class="col-md-3 col-lg-6 col-6 text-center">
                 {% if posts.has_next %}
                     <li class="next"><a href="{{ url_for('user',username=current_user.username, page=posts.next_num) }}">下一页</a></li>
                 {% else %}

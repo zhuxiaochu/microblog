@@ -52,7 +52,7 @@
         </div>
       </div>
       <div class="row">
-          <div class="col-sm-3 col-md-5 col-lg-6 col-lg-offset-1 text-center" id="prev">
+          <div class="col-md-5 col-lg-6 col-6 text-center" id="prev">
             <!--ul class="pager "-->
                {% if msgs.has_prev %}
                  <li class="previous"><a class="" onclick="prev()">上一页</a></li>
@@ -60,7 +60,7 @@
                     <a href=""></a>
                 {% endif %}
           </div>
-          <div class="col-sm-3 col-md-3 col-lg-6 col-md-offset-3 text-center" id="next">
+          <div class="col-md-3 col-lg-6 col-6 text-center float-right" id="next">
                 {% if msgs.has_next %}
                     <li class="next"><a href="#row2" onclick="next()">下一页</a></li>
                 {% else %}

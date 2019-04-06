@@ -31,7 +31,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-xs-3 col-md-6 col-lg-6">
+    <div class="col-xs-3 col-md-6 col-lg-6 col-5">
         <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
@@ -59,7 +59,7 @@
         </form>
     </div>
     
-    <div class="col-xs-3 col-md-2 col-lg-6 text-right">
+    <div class="col-xs-3 col-md-2 col-lg-6 col-5 text-right">
         <a href="{{ url_for('editpost',post_id = post.id) }}">
         <input class="btn button" value="编辑" type="button">
         </a>
