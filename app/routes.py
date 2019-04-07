@@ -39,10 +39,8 @@ def header_whitelist():
 
 @app.before_request
 def before_request():
-    if request.endpoint == 'user' and request.referrer.endswith('/login'):
-        if current_user.is_authenticated:
-            current_user.last_seen = datetime.utcnow()
-            db.session.commit()
+    pass
+            
 
 @app.after_request
 def add_header(response):
@@ -100,6 +98,8 @@ def login():
             if not next_page or url_parse(next_page).netloc != '':
                 #flash('remember me? ' + str(request.form.get('remember_me')))
                 next_page = url_for('index')
+            current_user.last_seen = datetime.utcnow()
+            db.session.commit()
             return redirect(next_page)
         else:
             flash('用户名或密码错误！')          #Login failed, username or password error!
@@ -292,7 +292,6 @@ def article_detail(username, post_id):
 #making
 @app.route('/picture')
 def picture():
-    app.logger.error('error')
     abort(404)
 
 

@@ -59,7 +59,7 @@ $('.blog-post table').wrap("<div class='table-responsive'></div>");
 
 
 $(".time,.leave_time").each(function(i, obj) {
-  var time = $(this).text();
+  var time = $(this).text() + 'Z';
   //time = time.replace(/-/g,'/')
   $(this).text(dayjs(time).format('YYYY/MM/DD HH:mm:ss'))
 });
