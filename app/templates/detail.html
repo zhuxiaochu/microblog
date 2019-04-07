@@ -39,7 +39,9 @@
           <div class="info">
             <div>
               <li class="fa fa-edit"></li>last-modified:
+              {% if post.last_modify %}
               <span class="time last-modify">{{ post.last_modify.isoformat() }}</span>
+              {% endif %}
             {% if user.id %}
               <a href="{{ url_for('editpost', post_id=post.id)}}">编辑</a>
             {% endif %}

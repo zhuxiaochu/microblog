@@ -44,7 +44,7 @@ $(".category a").click(function(){
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta .author').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('.time').text(dayjs($time.text() + 'Z').format('YYYY-MM-DD, HH:mm:ss'))
             $post.find('span.sign').text($temp.text())
         };
     },
@@ -97,7 +97,7 @@ function next() {
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta .author').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss')),
+            $post.find('.time').text(dayjs($time.text() + 'Z').format('YYYY-MM-DD, HH:mm:ss')),
             $post.find('span.sign').text($temp.text())
         };
     }
@@ -147,7 +147,7 @@ function prev() {
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta author').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('.time').text(dayjs($time.text() + 'Z').format('YYYY-MM-DD, HH:mm:ss'))
             $post.find('span.sign').text($temp.text())
         };
     }

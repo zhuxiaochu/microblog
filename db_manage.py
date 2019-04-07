@@ -156,9 +156,11 @@ def submit_links(links=None, from_db=False):
                     print(feedback['success'], 'pieces of links are submitted to baidu.')
                 else:
                     print('fail to connect,maybe url is uncorrect.code:',r.stats_code)
+            else:
+                print('no link is submitted.')
 
 if __name__ == '__main__':
     update_post_total()
-    create_triggers()
+    #create_triggers()
     submit_links()
     print('over')
