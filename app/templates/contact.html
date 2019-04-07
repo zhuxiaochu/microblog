@@ -28,7 +28,7 @@
             {% if msg.user_id == 1 %}
             <span class="role">[站长]&brvbar;</span>
             {% endif %}
-            <span class="leave_time">{{ msg.leave_time }}</span>
+            <span class="leave_time">{{ msg.leave_time.isoformat() }}</span>
             {% if msg.user_id %}
             <a href="#">&brvbar;&nbsp;{{ msg.author.username }}</a>
             {% else %}

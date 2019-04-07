@@ -66,4 +66,4 @@ class Config(object):
     TEST = os.environ.get('TEST') is None
 
     #get the exclusive url from baidu
-    BAIDU_LINKSUBMIT = eval(os.environ.get('BAIDU_LINKSUBMIT'))
+    BAIDU_LINKSUBMIT = eval(os.environ.get('BAIDU_LINKSUBMIT') or "''")

@@ -172,7 +172,7 @@ def contact(page=1):
                 num += 1
                 next_content[n] = {'name':l.name,
                                    'content':l.content,
-                                   'leave_time':l.leave_time,
+                                   'leave_time':l.leave_time.isoformat(),
                                    'user_id' :l.user_id,
                                    'role':'站长' if l.user_id == 1\
                                    else '匿名'}
@@ -591,12 +591,14 @@ def choose_cate():
             total = Stats.query.filter_by(name='post_count').first().total
             Use_Redis.set('total', 'post', total, disable=flag)
         total = int(total)
+        #user_id = 1 is admin'id
         posts = Post.query.filter_by(user_id=1).order_by(db.desc(Post.time)).paginate(
             int(page), app.config['POST_PER_PAGE'], False, total_in=total)
         xml = make_response(render_template('category.xml', posts=posts))
         xml.headers['Content-Type'] = 'application/xml; charset=utf-8'
         Use_Redis.set('cat', cat_id, page, pickle.dumps(xml), disable=flag)
     else:
+        #user_id=1 is admin's id
         posts = Post.query.filter_by(
             cat_id=int(cat_id), user_id=1).order_by(
             Post.time.desc()).paginate(

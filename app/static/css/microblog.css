@@ -5,7 +5,6 @@
  */
 body {
   font-size: 20px;
-  color: #212529;
   font-family: 'PingFang SC','Helvetica','Times New Roman',sans-serif;
 }
 
@@ -233,8 +232,7 @@ header.masthead {
     margin-top: 30px;
     margin-bottom: 10px; 
     display: inline;
-    word-break: break-all;
-}
+    word-break: break-all; }
   .post-preview > a > .post-subtitle {
     font-weight: 300;
     margin: 0 0 10px; }
@@ -521,6 +519,7 @@ pre {
 
 .btn.search {
   padding: 7px 7px;
+  background-color: #e2f4f5d4;
 }
 
 #popUp {

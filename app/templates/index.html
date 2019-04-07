@@ -27,7 +27,7 @@
               {% if subheading %}
               <span class="subheading">{{ subheading }}</span>
               {% else %}
-              <span class="subheading"></span>
+              <span class="subheading">Every ending is just a new beginning.</span>
               {% endif %}
             </div>
           </div>
@@ -78,7 +78,7 @@
                 </p>
                 <div class="post-meta">Posted by
                 <a href="#row2" class="author">{{ post.author.username }}</a>
-                on <span class="time">{{ post.time }}</span>
+                on <span class="time">{{ post.time.isoformat() }}</span>
                 <span class="cate">{{ post.cat.name }}</span>
                 <a href="#"><i class="fa fa-comments-o"></i></a>
                 </div>
@@ -173,7 +173,7 @@
     {% endif %}
 {% endblock %}
 {% block script %}
-  <script src="/static/js/index.js"></script>
+  <script src="/static/js/index.min.js" defer="defer"></script>
 {% endblock %}
     
 

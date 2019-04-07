@@ -16,7 +16,7 @@
     <title> 一点点技术和感悟 - 1956的博客</title>
     {% endif %}
     <!-- Bootstrap core CSS -->
-    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
 
     <!-- Custom fonts for this template -->
     <link href="/static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -24,7 +24,7 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
     <!-- Custom styles for this template -->
-    <link href="/static/css/microblog.css" rel="stylesheet"> 
+    <link href="/static/css/microblog.min.css" rel="stylesheet"> 
 
     <!-- HTML5 Shiv 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
     <!-- 注意： 如果通过 file://  引入 Respond.js 文件，则该文件无法起效果 -->
@@ -67,7 +67,6 @@
                 </li>
               {% endif %}
             {% endif %}
-            </li>
             {% if current_user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('user', username=current_user.username, page=1) }}">管理</a>
@@ -147,10 +146,18 @@
     <!-- Bootstrap core JavaScript -->
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
     <script>!window.jQuery && document.write("<script src=\"/static/vendor/jquery/jquery.min.js\">" + "<\/script>")</script>
-    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script >!window.bootstrap && document.write("<script src=\"/static/vendor/bootstrap/js/bootstrap.bundle.min.js\">" + "<\/script>")</script>
     <script type="text/javascript" src="/static/js/dayjs.min.js"></script>
     <!-- Custom scripts for this template -->
     <script src="/static/js/microblog.min.js"></script>
+    <script>
+      /*body color css shouldn't be adjusted in other files.*/
+      $(document).ready(function() {
+      var color = $('body').css('color');
+      if(color != 'rgb(33, 37, 41)') {
+      $("head").prepend('<link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">');}});
+    </script>
     {% block script %}{% endblock %}
   </body>
 </html>

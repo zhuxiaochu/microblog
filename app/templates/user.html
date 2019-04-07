@@ -16,20 +16,20 @@
         <tr valign="top">
             <td><img src="{{ user.avatar(64) }}"></td>
         </tr>
-            <tr>
-                <th>个人介绍：</th>
-                <td>
-                    {% if user.about_me %}<p>{{user.about_me|safe}}</p>{% endif %}
-                </td>
-                <td>
-                    <span>{% include "flash.html" %}</span>
-                </td>
-            </tr>
         <tr>
-                <th>上次访问时间：</th>
+            <th>个人介绍：</th>
+            <td>
+                {% if user.about_me %}<p>{{user.about_me|safe}}</p>{% endif %}
+            </td>
+            <td>
+                <span>{% include "flash.html" %}</span>
+            </td>
+        </tr>
+        <tr>
+            <th>上次访问时间：</th>
             <td>
                 {% if user.last_seen %}
-                    <em><span class="time">{{ user.last_seen }}<span></span></em>
+                    <em><span class="time">{{ user.last_seen.isoformat() }}</span></em>
                 {% endif %}
             </td>
         </tr>    
