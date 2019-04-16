@@ -22,11 +22,12 @@
 
           <div class="blog-post">
             <h2 class="blog-post-title">{{ post.title }}</h2>
+            {% if post.temp_store == 1%}
+            <span class="sign">未完成</span>
+            {% endif %}
             <div class="blog-post-meta">
               <i class="fa fa-clock-o"></i>
-              <span class="time">
-              {{ post.time }}
-              </span>
+              <span class="time">{{ post.time.isoformat() }}</span>
               <i class="fa fa-user-secret"></i>
               <a href="#">{{ post.author.username }}</a>
             </div>
@@ -38,7 +39,9 @@
           <div class="info">
             <div>
               <li class="fa fa-edit"></li>last-modified:
-              <span class="time last-modify">{{ post.last_modify }}</span>
+              {% if post.last_modify %}
+              <span class="time last-modify">{{ post.last_modify.isoformat() }}</span>
+              {% endif %}
             {% if user.id %}
               <a href="{{ url_for('editpost', post_id=post.id)}}">编辑</a>
             {% endif %}
@@ -62,7 +65,7 @@
             {% if msg.user_id == 1 %}
             <span class="role">[站长]&brvbar;</span>
             {% endif %}
-            <span class="leave_time">{{ msg.leave_time }}</span>
+            <span class="leave_time">{{ msg.leave_time.isoformat() }}</span>
             {% if msg.user_id %}
             <a href="#">&brvbar;&nbsp;{{ msg.author.username }}</a>
             {% else %}

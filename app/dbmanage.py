@@ -1,7 +1,12 @@
+'''
+all the cron jobs
+'''
+
 import os
 from datetime import datetime, timedelta
 from app import app, db
 from app.models import UploadImage
+
 
 def clear_image():
     '''delete all the images that marked 0'''
@@ -17,4 +22,3 @@ def clear_image():
                         app.logger.error("can't delete image:"+img.image_path)
             db.session.commit()
             app.logger.warning('Delete all the useless images!')
-

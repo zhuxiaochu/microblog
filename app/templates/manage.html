@@ -1,37 +1,21 @@
 <hr>
-<!--div class="post-preview">
-            <a href="post.html">
-              <h2 class="post-title">
-                {{ post.title }}
-              </h2>
-              <h3 class="post-subtitle">
-                {{ post.content|truncate(400,True)|striptags}}
-              </h3>
-            </a>
-            <p class="post-meta">
-                Posted by
-              <a href="#">{{ post.author.username }}</a>
-              on {{ post.time }}
-            </p>
-            <p>
-                <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
-                    <input class="btn button" type="submit" value="删除" >
-                </form>
-                <a class="btn button" href="{{ url_for('editpost',post_id = post.id) }}" type="submit" value="编辑">编辑</a>
-            </p>
-</div-->
 <div class="row">
     <div class="col-xs-3 col-md-6 col-lg-6">
-        <div class="post title">
+        <div class="post title" style="display: inline;">
             {{ post.title }}
         </div>
+        <span class="sign" style="color: red;">
+                  {% if post.temp_store == 1 %}
+                  未完成
+                  {% endif %}
+                  </span>
     </div>
     <div class="col-xs-3 col-md-6 col-lg-6 text-right">
         <span class="time">{{ post.time }}</span>
     </div>
 </div>
 <div class="row">
-    <div class="col-xs-3 col-md-6 col-lg-6">
+    <div class="col-xs-3 col-md-6 col-lg-6 col-5">
         <form action="{{ url_for('delete',post_id = post.id) }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
@@ -59,7 +43,7 @@
         </form>
     </div>
     
-    <div class="col-xs-3 col-md-2 col-lg-6 text-right">
+    <div class="col-xs-3 col-md-2 col-lg-6 col-5 text-right">
         <a href="{{ url_for('editpost',post_id = post.id) }}">
         <input class="btn button" value="编辑" type="button">
         </a>

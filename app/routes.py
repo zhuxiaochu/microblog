@@ -1,10 +1,10 @@
-import os
+import os, sys, pickle
 from time import time
 from threading import Thread
 from flask_sqlalchemy import get_debug_queries
 from bs4 import BeautifulSoup
 from flask import (render_template, flash, url_for, session, redirect, request,
-    abort, send_from_directory, jsonify)
+    abort, send_from_directory, jsonify, make_response)
 from app import app, db, login, limiter, csrf
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import (Post, User, RegistCode, UploadImage, LeaveMessage,
@@ -39,9 +39,8 @@ def header_whitelist():
 
 @app.before_request
 def before_request():
-    if current_user.is_authenticated:
-        current_user.last_seen = datetime.utcnow()
-        db.session.commit()
+    pass
+            
 
 @app.after_request
 def add_header(response):
@@ -71,11 +70,13 @@ def index(page=1):
         posts = Post.query.filter_by(user_id=user.id).order_by(
             Post.time.desc()).paginate(
             page, app.config['POST_PER_PAGE'], False, total_in=total)
+        news = user.about_me
     else:
         posts = None
+        news = 'Testing'
     cats = PostCat.query.all()
     html = render_template('index.html', user=user, posts=posts,
-                          cats=cats, page=page, new=user.about_me)
+                          cats=cats, page=page, new=news)
     Use_Redis.set('index', str(current_user.get_id() or '0'), html,
             disable=flag)
     return html
@@ -97,6 +98,8 @@ def login():
             if not next_page or url_parse(next_page).netloc != '':
                 #flash('remember me? ' + str(request.form.get('remember_me')))
                 next_page = url_for('index')
+            current_user.last_seen = datetime.utcnow()
+            db.session.commit()
             return redirect(next_page)
         else:
             flash('用户名或密码错误！')          #Login failed, username or password error!
@@ -169,7 +172,7 @@ def contact(page=1):
                 num += 1
                 next_content[n] = {'name':l.name,
                                    'content':l.content,
-                                   'leave_time':l.leave_time,
+                                   'leave_time':l.leave_time.isoformat(),
                                    'user_id' :l.user_id,
                                    'role':'站长' if l.user_id == 1\
                                    else '匿名'}
@@ -289,7 +292,6 @@ def article_detail(username, post_id):
 #making
 @app.route('/picture')
 def picture():
-    app.logger.error('error')
     abort(404)
 
 
@@ -304,6 +306,8 @@ def delete(post_id):
     flash("删除成功!")
     Use_Redis.eval('index', '*', disable=flag)
     Use_Redis.eval('article', post_id, '*', disable=flag)
+    Use_Redis.eval('cat', '0', '*', disable=flag)
+    Use_Redis.eval('cat', str(post.cat_id), '*', disable=flag)
     Use_Redis.delete('total', 'post', disable=flag)
     return redirect(url_for('user',username=current_user.username))
 
@@ -319,6 +323,7 @@ def editpost(post_id):
     form.content.data = post.content
     form.cat.data = post.cat_id
     return render_template('editpost.html', form=form, post_id=post.id)
+
 
 def del_image(post, form, user_id):
     with app.app_context():
@@ -363,11 +368,15 @@ def change(post_id):
     if form.validate_on_submit():
         t = Thread(target=del_image, args=(post, form, current_user.id))
         t.start()
+        temp_store = 0
+        if request.form.get('temp'):
+            temp_store = 1
         origin_id = str(post.cat_id)
         post.title = form.title.data
         post.content = form.content.data
         post.cat_id = form.cat.data
         post.last_modify = datetime.utcnow()
+        post.temp_store = temp_store
         db.session.add(post)
         db.session.commit()
         Use_Redis.eval('article', post_id, '*', disable=flag)
@@ -388,8 +397,12 @@ def change(post_id):
 def write():
     form = PostForm()
     if form.validate_on_submit() and request.method == 'POST':
+        temp_store = 0
+        if request.form.get('temp'):
+            temp_store = 1
         post = Post(title=form.title.data, content=form.content.data,
-            user_id=current_user.id, cat_id=form.cat.data)
+            user_id=current_user.id, cat_id=form.cat.data,
+            temp_store=temp_store)
         db.session.add(post)
         db.session.commit()
         soup_post = BeautifulSoup(post.content, 'lxml')
@@ -569,6 +582,7 @@ def choose_cate():
         abort(404)
     xml = Use_Redis.get('cat', cat_id, page, disable=flag)
     if xml:
+        xml = pickle.loads(xml)
         return xml
     if int(cat_id) == 0:
         total = Use_Redis.get('total', 'post', disable=flag)
@@ -576,17 +590,21 @@ def choose_cate():
             total = Stats.query.filter_by(name='post_count').first().total
             Use_Redis.set('total', 'post', total, disable=flag)
         total = int(total)
-        posts = Post.query.order_by(db.desc(Post.time)).paginate(
+        #user_id = 1 is admin'id
+        posts = Post.query.filter_by(user_id=1).order_by(db.desc(Post.time)).paginate(
             int(page), app.config['POST_PER_PAGE'], False, total_in=total)
-        xml = render_template('category.xml', posts=posts)
-        Use_Redis.set('cat', cat_id, page, xml, disable=flag)
+        xml = make_response(render_template('category.xml', posts=posts))
+        xml.headers['Content-Type'] = 'application/xml; charset=utf-8'
+        Use_Redis.set('cat', cat_id, page, pickle.dumps(xml), disable=flag)
     else:
+        #user_id=1 is admin's id
         posts = Post.query.filter_by(
-            cat_id=int(cat_id)).order_by(
+            cat_id=int(cat_id), user_id=1).order_by(
             Post.time.desc()).paginate(
             int(page), app.config['POST_PER_PAGE'], False)
-        xml = render_template('category.xml', posts=posts)
-        Use_Redis.set('cat', cat_id, page, xml, disable=flag)
+        xml = make_response(render_template('category.xml', posts=posts))
+        xml.headers['Content-Type'] = 'application/xml; charset=utf-8'
+        Use_Redis.set('cat', cat_id, page, pickle.dumps(xml), disable=flag)
     return xml
 
 

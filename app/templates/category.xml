@@ -11,10 +11,15 @@
     <article num="{{ loop.index }}">
         <title>{{ post.title }}</title>
         <content>{{ post.content|truncate(200, True)|striptags}}</content>
-        <time>{{ post.time }}</time>
+        <time>{{ post.time.isoformat() }}</time>
         <author>{{ post.author.username }}</author>
         <cate>{{ post.cat.name }}</cate>
         <url>{{ url_for('article_detail', username=post.author.username, post_id=post.id)}}</url>
+        {% if post.temp_store == 1 %}
+        <temp>未完成</temp>
+        {% else %}
+        <temp></temp>
+        {% endif %}
     </article>
     {% endfor %}
     {% endif %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     <!-- Page Header -->
-    <header class="masthead" style="background-image: url('/static/img/home-bg.jpg')">
+    <header class="masthead index">
       <div class="overlay"></div>
       <div id="popUp">
               <div id="close" class="close"><i class="fa fa-times"></i></div>
@@ -27,7 +27,7 @@
               {% if subheading %}
               <span class="subheading">{{ subheading }}</span>
               {% else %}
-              <span class="subheading">分享一点点技术和感悟</span>
+              <span class="subheading">Every ending is just a new beginning.</span>
               {% endif %}
             </div>
           </div>
@@ -67,13 +67,18 @@
                   <h2 class="post-title">
                     {{ post.title }}
                   </h2>
+                  <span class="sign">
+                  {% if post.temp_store == 1 %}
+                  未完成
+                  {% endif %}
+                  </span>
                 </a>
                 <p class="post-subtitle">
                   {{ post.content|truncate(200, True)|striptags }}
                 </p>
                 <div class="post-meta">Posted by
                 <a href="#row2" class="author">{{ post.author.username }}</a>
-                on <span class="time">{{ post.time }}</span>
+                on <span class="time">{{ post.time.isoformat() }}</span>
                 <span class="cate">{{ post.cat.name }}</span>
                 <a href="#"><i class="fa fa-comments-o"></i></a>
                 </div>
@@ -168,7 +173,7 @@
     {% endif %}
 {% endblock %}
 {% block script %}
-  <script src="/static/js/index.min.js"></script>
+  <script src="/static/js/index.min.js" defer="defer"></script>
 {% endblock %}
     
 

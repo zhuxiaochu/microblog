@@ -61,6 +61,9 @@ class Config(object):
     REDIS_DISABLE = os.environ.get('REDIS_DISABLE') is not None
 
     DEBUG_QUERY = os.environ.get('DEBUG_QUERY') is not None
-    PROFILER = os.environ.get('PROFILER') is None
+    PROFILER = os.environ.get('PROFILER') is not None
 
     TEST = os.environ.get('TEST') is None
+
+    #get the exclusive url from baidu  problom exists!
+    BAIDU_LINKSUBMIT = os.environ.get('BAIDU_LINKSUBMIT')

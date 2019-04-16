@@ -7,8 +7,7 @@ $(".category a").click(function(){
     url: '/category',  /*only need number*/
     data: {cat_id:cate_id.slice(4)},
     success: function(msg){
-        xmlDoc = $.parseXML( msg ),
-        $xml = $( xmlDoc );
+        $xml = $( msg );
         $(".page").text(1);
         var exp_num = Number($xml.find('exp_num').text());
         var real_num = Number($xml.find('real_num').text());
@@ -37,6 +36,7 @@ $(".category a").click(function(){
             $content = $article.find('content'),
             $cate = $article.find('cate'),
             $author = $article.find('author'),
+            $temp = $article.find('temp'),
             $post = $("#post" + i.toString()),
             $post.show(),
             $post.find('.post-title').text($title.text()),
@@ -44,7 +44,8 @@ $(".category a").click(function(){
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta .author').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('.time').text(dayjs($time.text() + 'Z').format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('span.sign').text($temp.text())
         };
     },
     error: function(msg) {
@@ -62,8 +63,7 @@ function next() {
     url: '/category',
     data: {cat_id:cat_id,page:(page + 1).toString()},
     success: function(msg){
-        xmlDoc = $.parseXML( msg ),
-        $xml = $( xmlDoc );
+        $xml = $( msg );
         var exp_num = Number($xml.find('exp_num').text());
         var real_num = Number($xml.find('real_num').text())
         var next_num = $xml.find('next_num').text();
@@ -89,6 +89,7 @@ function next() {
             $content = $article.find('content'),
             $cate = $article.find('cate'),
             $author = $article.find('author'),
+            $temp = $article.find('temp'),
             $post = $("#post" + i.toString()),
             $post.show(),
             $post.find('.post-title').text($title.text()),
@@ -96,7 +97,8 @@ function next() {
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta .author').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('.time').text(dayjs($time.text() + 'Z').format('YYYY-MM-DD, HH:mm:ss')),
+            $post.find('span.sign').text($temp.text())
         };
     }
   });
@@ -111,8 +113,7 @@ function prev() {
     url: '/category',
     data: {cat_id:cat_id,page:(page - 1).toString()},
     success: function(msg){
-        xmlDoc = $.parseXML( msg ),
-        $xml = $( xmlDoc );
+        $xml = $( msg );
         var exp_num = Number($xml.find('exp_num').text());
         var real_num = exp_num;
         var next_num = $xml.find('next_num').text();
@@ -138,6 +139,7 @@ function prev() {
             $content = $article.find('content'),
             $cate = $article.find('cate'),
             $author = $article.find('author'),
+            $temp = $article.find('temp'),
             $post = $("#post" + i.toString()),
             $post.show(),
             $post.find('.post-title').text($title.text()),
@@ -145,7 +147,8 @@ function prev() {
             $post.find('.post-subtitle').text($content.text()),
             $post.find('.post-meta author').text($author.text()),
             $post.find('.cate').text($cate.text()),
-            $post.find('.time').text(dayjs($time.text()).format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('.time').text(dayjs($time.text() + 'Z').format('YYYY-MM-DD, HH:mm:ss'))
+            $post.find('span.sign').text($temp.text())
         };
     }
   });

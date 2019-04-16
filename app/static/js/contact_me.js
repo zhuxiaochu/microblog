@@ -25,7 +25,7 @@ function next() {
                         $('#comment' + (i+1).toString() + ' .user_id').text(msg[i]['user_id'])
                         $('#comment' + (i+1).toString() + ' .content_div').html(msg[i]['content'])
                         $('#comment' + (i+1).toString() + ' .role').text(msg[i]['role'])
-                        $('#comment' + (i+1).toString() + ' .leave_time').text(moment(msg[i]['leave_time']).format('YYYY-MM-DD, HH:mm:ss'))
+                        $('#comment' + (i+1).toString() + ' .leave_time').text(dayjs(msg[i]['leave_time']).format('YYYY-MM-DD, HH:mm:ss'))
                       };
                     return Number(origin) + 1
                   };
@@ -57,7 +57,7 @@ function prev(){
                         $('#comment' + (i+1).toString() + ' .user_id').text(msg[i]['user_id'])
                         $('#comment' + (i+1).toString() + ' .content_div').html(msg[i]['content'])
                         $('#comment' + (i+1).toString() + ' .role').text(msg[i]['role'])
-                        $('#comment' + (i+1).toString() + ' .leave_time').text(moment(msg[i]['leave_time']).format('YYYY-MM-DD, HH:mm:ss'))
+                        $('#comment' + (i+1).toString() + ' .leave_time').text(dayjs(msg[i]['leave_time']).format('YYYY-MM-DD, HH:mm:ss'))
                       };
                   return Number(origin) - 1
                 });
