@@ -42,7 +42,7 @@
 {% block script %}
 {{ ckeditor.load(custom_url=url_for('static', filename='ckeditor/ckeditor.js')) }}
 {{ ckeditor.config(name='content',custom_config="
-            extraPlugins: 'autogrow,codesnippet,uploadimage,filebrowser,textindent',
+            extraPlugins: 'autogrow,codesnippet,uploadimage,filebrowser,',
             autoGrow_minHeight: 200,
             autoGrow_maxHeight: 800,
             autoGrow_bottomSpace: 30,
@@ -52,5 +52,7 @@
             language: 'zh-CN,en,ko',
             mathJaxLib: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',
             indentation: '2em',
+            extraAllowedContent: 'p{text-indent}',
 ") }}
 {% endblock %}
+

@@ -724,6 +724,14 @@ hr:before, hr:after { content: ''; }
   word-break: break-all;
 }
 
+.blog-post a {
+  color: #337ab7;
+}
+
+.blog-post li {
+  word-break: break-all;
+}
+
 /*search*/
 .s-result {
   padding: 0 0 0 5rem;

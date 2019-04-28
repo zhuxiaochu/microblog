@@ -1,6 +1,8 @@
-import os, sys, pickle
+import os, sys, pickle, random
+import bleach
 from time import time
 from threading import Thread
+#from pyecharts import Scatter3D, Bar
 from flask_sqlalchemy import get_debug_queries
 from bs4 import BeautifulSoup
 from flask import (render_template, flash, url_for, session, redirect, request,
@@ -24,9 +26,12 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 if app.config['PROFILER']:
     if not os.path.exists('profile'):
         os.mkdir('profile')
-    app.wsgi_app = ProfilerMiddleware(app.wsgi_app, profile_dir='profile',
+    app.wsgi_app = ProfilerMiddleware(
+        app.wsgi_app,
         restrictions=[30])
 flag = app.config['REDIS_DISABLE']
+
+REMOTE_HOST = "https://pyecharts.github.io/assets/js"
 
 @login.user_loader
 def load_user(user_id):
@@ -185,7 +190,15 @@ def contact(page=1):
         return jsonify(next_content)
     form = LeaveMsgForm()
     if form.validate_on_submit():
-        msg = LeaveMessage(name=form.name.data, content=form.content.data,
+        name = bleach.clean(form.name.data,
+            tags=['p', 'span', 'ol', 'li', 'ul', 'strong', 'em', 's'],
+            attributes={'span':['class'], '*':['style']},
+            styles=['font-size', 'font-family'])
+        content = bleach.clean(form.content.data,
+            tags=['p', 'a', 'span', 'ol', 'li', 'ul', 'strong', 'em', 's'],
+            attributes={'span':['class'], 'a':['href', 'title'], '*':['style']},
+            styles=['font-size', 'font-family'])
+        msg = LeaveMessage(name=name, content=content,
             email=form.email.data, user_id=
                 current_user.get_id())
         try:
@@ -294,6 +307,36 @@ def article_detail(username, post_id):
 def picture():
     abort(404)
 
+def scatter3d():
+    data = [generate_3d_random_point() for _ in range(80)]
+    range_color = [
+        "#313695",
+        "#4575b4",
+        "#74add1",
+        "#abd9e9",
+        "#e0f3f8",
+        "#fee090",
+        "#fdae61",
+        "#f46d43",
+        "#d73027",
+        "#a50026",
+    ]
+    scatter3D = Scatter3D("3D scattering plot demo", width=1200, height=600)
+    scatter3D.add("", data, is_visualmap=True, visual_range_color=range_color)
+    return scatter3D
+
+def bar_chart():
+    bar = Bar("我的第一个图表", "这里是副标题")
+    bar.add(
+        "服装", ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"], [5, 20, 36, 10, 75, 90]
+    )
+    return bar
+
+def generate_3d_random_point():
+    return [
+        random.randint(0, 100), random.randint(0, 100), random.randint(0, 100)
+    ]
+
 
 @app.route('/delete/<post_id>', methods = ['POST'])
 @login_required
@@ -397,9 +440,7 @@ def change(post_id):
 def write():
     form = PostForm()
     if form.validate_on_submit() and request.method == 'POST':
-        temp_store = 0
-        if request.form.get('temp'):
-            temp_store = 1
+        temp_store = 1 if request.form.get('temp') else 0
         post = Post(title=form.title.data, content=form.content.data,
             user_id=current_user.id, cat_id=form.cat.data,
             temp_store=temp_store)
@@ -615,7 +656,7 @@ def search():
         html = Use_Redis.get('srh', keys, str(current_user.get_id() or '0'),
             disable=flag)
     else:
-        html = None
+        return render_template('search.html')
     if not html:
         results = Post.query.whoosh_search(keys).all()
         html = render_template('search.html', results=results)
