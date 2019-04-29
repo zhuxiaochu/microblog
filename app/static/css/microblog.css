@@ -732,6 +732,17 @@ hr:before, hr:after { content: ''; }
   word-break: break-all;
 }
 
+blockquote {
+  border-width: 0;
+  border-left-width: 5px;
+  border-style: solid;
+  border-color: #ccc;
+  padding-left: 20px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin: 15px 40px;
+}
+
 /*search*/
 .s-result {
   padding: 0 0 0 5rem;
@@ -742,6 +753,10 @@ hr:before, hr:after { content: ''; }
 
 .s-result > .post-subtitle {
   color: #888;
+}
+
+#custom-search-input > form > div > span > button {
+  padding: 10px 20px;
 }
 
 /*write*/
