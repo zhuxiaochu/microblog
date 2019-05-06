@@ -1,11 +1,17 @@
 import os 
 import logging
-import flask_whooshalchemyplus
 import smtplib
+import sys
+import atexit
+if sys.platform.startswith('linux'):
+    import fcntl
+else:
+    import portalocker
 
 from logging.handlers import SMTPHandler
 from logging.handlers import RotatingFileHandler
 
+import flask_whooshalchemyplus
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
@@ -105,10 +111,34 @@ mail = Mail(app)
 
 redis1 = Redis(app)
 
-scheduler = APScheduler()
-scheduler.init_app(app)
-scheduler.start()
+def scheduler_init(app):
+    '''lock the file to avoid the multiple timed tasks'''
+    f = open("scheduler.lock", "wb")
+    try:
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        scheduler = APScheduler()
+        scheduler.init_app(app)
+        scheduler.start()
+    except:
+        pass
+    def unlock():
+        fcntl.flock(f, fcntl.LOCK_UN)
+        f.close()
+    atexit.register(unlock)
 
+if sys.platform.startswith('linux'):
+    scheduler_init(app)
+else:
+    try:
+        fh = open("scheduler.lock", "wb")
+        portalocker.lock(fh, portalocker.LOCK_EX)
+        scheduler = APScheduler()
+        scheduler.init_app(app)
+        scheduler.start()
+        fh.close()
+        portalocker.unlock(fh)
+    except:
+        pass
 
 from app import routes,models
 
